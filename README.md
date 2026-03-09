@@ -1,20 +1,31 @@
 <p align="center">
-  <img src="netclaw.jpg" alt="NetClaw — A CCIE-level AI agent that claws through your network" width="600">
+  <img src="netclaw.jpg" alt="Netclaw-Miles — Meraki-focused CCIE-level AI agent" width="600">
 </p>
 
-# NetClaw
+# Netclaw-Miles
 
-A CCIE-level AI network engineering coworker. Built on [OpenClaw](https://github.com/openclaw/openclaw) with Anthropic Claude, 77 skills, and 36 MCP server backends for complete network automation with ITSM gating, source-of-truth reconciliation, immutable audit trails, packet capture analysis, GitHub config-as-code, Cisco CML lab simulation, ContainerLab containerized network labs, Cisco NSO orchestration, Cisco SD-WAN vManage monitoring, Grafana observability (dashboards, Prometheus, Loki, alerting, incidents), Prometheus direct PromQL monitoring, Kubeshark Kubernetes traffic analysis, Cisco Meraki Dashboard management, Cisco ThousandEyes network intelligence, AWS cloud networking, Cisco Secure Firewall policy auditing, Itential network orchestration, UML diagram generation, live BGP/OSPF control-plane participation, nmap network scanning, gtrace path analysis and IP enrichment, Slack-native operations, and Microsoft 365 integration.
+Netclaw-Miles is a CCIE-level AI network engineering coworker forked from [NetClaw](https://github.com/automateyournetwork/netclaw). It keeps the same stack (OpenClaw, Claude, 77 skills, 36 MCP server backends) and capabilities, with a focus on **enterprise networking and Cisco Meraki**. Built on [OpenClaw](https://github.com/openclaw/openclaw) with Anthropic Claude for complete network automation: ITSM gating, source-of-truth reconciliation, immutable audit trails, packet capture analysis, GitHub config-as-code, Cisco CML and ContainerLab labs, Cisco NSO orchestration, Cisco SD-WAN vManage monitoring, Grafana observability, Cisco Meraki Dashboard management, Cisco ThousandEyes, AWS cloud networking, Cisco Secure Firewall policy auditing, Itential orchestration, UML diagram generation, live BGP/OSPF participation, nmap and gtrace, Slack-native operations, and Microsoft 365 integration.
+
+## About Netclaw-Miles
+
+- **Credit:** This project is a fork of [NetClaw](https://github.com/automateyournetwork/netclaw) by [automateyournetwork](https://github.com/automateyournetwork). We retain most of the same features and functionality.
+- **Focus:** Netclaw-Miles is oriented toward **enterprise networking**, especially **Cisco Meraki** (Dashboard API, wireless, switching, security appliances, cameras, diagnostics), while still supporting the broader NetClaw toolset (pyATS, NetBox, ServiceNow, and the rest of the 36 MCP backends).
+- **Miles:** The agent is **Miles**—a reincarnation of **Meraki Miles**, the former mascot of Meraki—embodying the same CCIE-level engineer persona with a Meraki-native identity.
+- **Intentions:** To provide a Meraki-first, enterprise-ready variant of NetClaw for teams running cloud-managed networks, with the same safety rules, GAIT audit trail, and change-management practices as upstream.
 
 ---
 
 ## Quick Install
 
+Clone this repository (Netclaw-Miles) and run the installer. Replace `YOUR_ORG` with the GitHub org or username that hosts this repo (or use the clone URL from the GitHub "Code" button).
+
 ```bash
-git clone https://github.com/automateyournetwork/netclaw.git
-cd netclaw
+git clone https://github.com/YOUR_ORG/netclaw-miles.git
+cd netclaw-miles
 ./scripts/install.sh          # installs everything, then launches the setup wizard
 ```
+
+To install the original [NetClaw](https://github.com/automateyournetwork/netclaw) instead, use `https://github.com/automateyournetwork/netclaw.git` and `cd netclaw`.
 
 That's it. The installer clones 36 MCP servers, deploys 77 skills, then launches a two-phase setup:
 
@@ -24,7 +35,7 @@ That's it. The installer clones 36 MCP servers, deploys 77 skills, then launches
 - Connect channels (Slack, Discord, Telegram, WhatsApp, etc.)
 - Install the daemon service
 
-**Phase 2: `./scripts/setup.sh`** (NetClaw platform credentials)
+**Phase 2: `./scripts/setup.sh`** (Netclaw-Miles platform credentials)
 - Network devices (testbed.yaml editor)
 - Platform credentials (NetBox, Nautobot, Infrahub, Itential, ServiceNow, ACI, ISE, Catalyst Center, NVD, Microsoft Graph, GitHub, CML, NSO, Meraki, FMC, ThousandEyes, RADKit, AWS, GCP, ContainerLab, SD-WAN, Grafana, Prometheus, Kubeshark)
 - Your identity (name, role, timezone for USER.md)
@@ -179,20 +190,20 @@ Human (Slack / WebChat) --> NetClaw (CCIE Agent on OpenClaw)
 
 ## OpenClaw Workspace Files
 
-NetClaw ships with the full set of OpenClaw workspace markdown files. These are injected into the agent's system prompt at session start to define its identity, behavior, and operating procedures.
+Netclaw-Miles ships with the full set of OpenClaw workspace markdown files. These are injected into the agent's system prompt at session start to define its identity, behavior, and operating procedures. In this fork, [SOUL.md](SOUL.md) defines the agent as **Miles** with a Meraki-focused persona.
 
 | File | Purpose | Loaded When |
 |------|---------|-------------|
-| **[SOUL.md](SOUL.md)** | Core personality, CCIE expertise, 12 non-negotiable rules, protocol knowledge base | Every session |
+| **[SOUL.md](SOUL.md)** | Core personality (Miles), CCIE expertise, 12 non-negotiable rules, protocol knowledge base | Every session |
 | **[AGENTS.md](AGENTS.md)** | Operating instructions: memory system, safety rules, change management workflow, Slack behavior, escalation matrix | Every session |
-| **[IDENTITY.md](IDENTITY.md)** | Name, creature type, vibe, emoji — NetClaw's identity card | Every session |
+| **[IDENTITY.md](IDENTITY.md)** | Name, creature type, vibe, emoji — identity card | Every session |
 | **[USER.md](USER.md)** | Your preferences, timezone, role, network details — personalization layer (edit this) | Every session |
 | **[TOOLS.md](TOOLS.md)** | Local infrastructure notes: device IPs, SSH hosts, Slack channels, site info (edit this) | Every session |
 | **[HEARTBEAT.md](HEARTBEAT.md)** | Periodic health checks: device reachability, OSPF/BGP state, CPU/memory, syslog scan | Every heartbeat cycle |
 
 **How they work:** OpenClaw reads these files at session start and injects them under "Project Context" in the system prompt. Each file is capped at 20,000 characters. Sub-agents only receive AGENTS.md and TOOLS.md.
 
-**What to customize:** Edit `USER.md` with your name, timezone, and preferences. Edit `TOOLS.md` with your device IPs, Slack channels, and site information. The rest define NetClaw's behavior and expertise — modify only if you want to change how the agent operates.
+**What to customize:** Edit `USER.md` with your name, timezone, and preferences. Edit `TOOLS.md` with your device IPs, Slack channels, and site information. The rest define the agent's behavior and expertise — modify only if you want to change how it operates.
 
 ---
 
