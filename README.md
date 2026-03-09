@@ -17,10 +17,10 @@ Netclaw-Miles is a CCIE-level AI network engineering coworker forked from [NetCl
 
 ## Quick Install
 
-Clone this repository (Netclaw-Miles) and run the installer. Replace `YOUR_ORG` with the GitHub org or username that hosts this repo (or use the clone URL from the GitHub "Code" button).
+Clone this repository (Netclaw-Miles) and run the installer.
 
 ```bash
-git clone https://github.com/YOUR_ORG/netclaw-miles.git
+git clone https://github.com/MKutka/netclaw-miles.git
 cd netclaw-miles
 ./scripts/install.sh          # installs everything, then launches the setup wizard
 ```
