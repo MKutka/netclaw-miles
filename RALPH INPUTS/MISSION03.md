@@ -444,7 +444,7 @@ curl http://127.0.0.1:8179/rib
 | Mission | Status | Summary |
 |---|---|---|
 | MISSION01 | Complete | Core pyATS agent, 7 skills, Markmap, Draw.io, RFC, NVD CVE, SOUL v1 |
-| MISSION02 | Complete | NetBox, ServiceNow, GAIT, ACI, ISE, Wikipedia, 6 MCPs, 7 skills, SOUL v2 |
+| MISSION02 | Complete | NetBox, ServiceNow, GAIT, ISE, Wikipedia, 5 MCPs, 5 skills, SOUL v2 |
 | MISSION03 | Active | NetClaw Mesh — BGP peering between NetClaw instances via ngrok, OPEN-based peer identification, multi-peer support, route exchange, mesh IXP model |
 
 ---

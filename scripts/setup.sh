@@ -183,23 +183,6 @@ else
 fi
 echo ""
 
-# --- Itential Automation Platform ---
-if yesno "Do you have an Itential Automation Platform (IAP) instance? (network automation orchestration)"; then
-    echo ""
-    echo -e "  Itential MCP provides 65+ tools: config mgmt, compliance, workflows, golden config, lifecycle."
-    echo ""
-    prompt ITENTIAL_HOST "IAP hostname (itential.example.com)" ""
-    prompt ITENTIAL_USER "IAP Username" ""
-    prompt_secret ITENTIAL_PASS "IAP Password"
-    [ -n "$ITENTIAL_HOST" ] && set_env "ITENTIAL_MCP_PLATFORM_HOST" "$ITENTIAL_HOST"
-    [ -n "$ITENTIAL_USER" ] && set_env "ITENTIAL_MCP_PLATFORM_USER" "$ITENTIAL_USER"
-    [ -n "$ITENTIAL_PASS" ] && set_env "ITENTIAL_MCP_PLATFORM_PASSWORD" "$ITENTIAL_PASS"
-    ok "Itential IAP configured"
-else
-    skip "Itential IAP"
-fi
-echo ""
-
 # --- ServiceNow ---
 if yesno "Do you have a ServiceNow instance?"; then
     echo ""
@@ -212,21 +195,6 @@ if yesno "Do you have a ServiceNow instance?"; then
     ok "ServiceNow configured"
 else
     skip "ServiceNow"
-fi
-echo ""
-
-# --- Cisco ACI ---
-if yesno "Do you have a Cisco ACI fabric (APIC)?"; then
-    echo ""
-    prompt APIC_URL "APIC URL (https://apic.example.com)" ""
-    prompt APIC_USER "APIC Username" "admin"
-    prompt_secret APIC_PASS "APIC Password"
-    [ -n "$APIC_URL" ] && set_env "APIC_URL" "$APIC_URL"
-    [ -n "$APIC_USER" ] && set_env "APIC_USERNAME" "$APIC_USER"
-    [ -n "$APIC_PASS" ] && set_env "APIC_PASSWORD" "$APIC_PASS"
-    ok "Cisco ACI configured"
-else
-    skip "Cisco ACI"
 fi
 echo ""
 
@@ -339,33 +307,6 @@ if yesno "Do you have a Cisco Modeling Labs (CML) server?"; then
     ok "Cisco CML configured"
 else
     skip "Cisco CML"
-fi
-echo ""
-
-# --- Cisco NSO ---
-if yesno "Do you have a Cisco NSO (Network Services Orchestrator) server?"; then
-    echo ""
-    echo -e "  NSO MCP connects via RESTCONF API for device config, sync, and services."
-    echo ""
-    prompt NSO_URL "NSO URL (e.g., https://sandbox-nso-1.cisco.com)" ""
-    prompt NSO_USER "NSO username" "admin"
-    prompt_secret NSO_PASS "NSO password"
-    if [ -n "$NSO_URL" ]; then
-        # Parse scheme, host, port from URL
-        NSO_SCHEME=$(echo "$NSO_URL" | sed -n 's|^\(https\?\)://.*|\1|p')
-        NSO_HOST=$(echo "$NSO_URL" | sed -n 's|^https\?://\([^:/]*\).*|\1|p')
-        NSO_PORT_NUM=$(echo "$NSO_URL" | sed -n 's|^https\?://[^:]*:\([0-9]*\).*|\1|p')
-        [ -z "$NSO_SCHEME" ] && NSO_SCHEME="https"
-        [ -z "$NSO_PORT_NUM" ] && { [ "$NSO_SCHEME" = "https" ] && NSO_PORT_NUM="443" || NSO_PORT_NUM="8080"; }
-        set_env "NSO_SCHEME" "$NSO_SCHEME"
-        set_env "NSO_ADDRESS" "$NSO_HOST"
-        set_env "NSO_PORT" "$NSO_PORT_NUM"
-    fi
-    [ -n "$NSO_USER" ] && set_env "NSO_USERNAME" "$NSO_USER"
-    [ -n "$NSO_PASS" ] && set_env "NSO_PASSWORD" "$NSO_PASS"
-    ok "Cisco NSO configured"
-else
-    skip "Cisco NSO"
 fi
 echo ""
 
@@ -494,34 +435,6 @@ else
 fi
 echo ""
 
-# --- ContainerLab ---
-if yesno "Do you have a ContainerLab API server running?"; then
-    echo ""
-    echo -e "  ContainerLab MCP lets NetClaw deploy and manage containerized network labs."
-    echo -e "  Requires a running ContainerLab API server (clab-api-server)."
-    echo ""
-    echo -e "  ${BOLD}Prerequisite:${NC} A Linux user must exist on the ContainerLab host."
-    echo -e "  The API server authenticates via PAM. Run this on the clab host first:"
-    echo ""
-    echo -e "    ${DIM}sudo groupadd -f clab_admins && sudo groupadd -f clab_api${NC}"
-    echo -e "    ${DIM}sudo useradd -m -s /bin/bash netclaw 2>/dev/null || true${NC}"
-    echo -e "    ${DIM}sudo usermod -aG clab_admins netclaw && sudo passwd netclaw${NC}"
-    echo ""
-    echo -e "  ${BOLD}If clab-api-server runs in Docker:${NC} restart it after creating the user:"
-    echo -e "    ${DIM}docker restart clab-api-server${NC}"
-    echo ""
-    prompt CLAB_URL "ContainerLab API Server URL" "http://localhost:8080"
-    prompt CLAB_USER "ContainerLab Username" "netclaw"
-    prompt_secret CLAB_PASS "ContainerLab Password"
-    [ -n "$CLAB_URL" ] && set_env "CLAB_API_SERVER_URL" "$CLAB_URL"
-    [ -n "$CLAB_USER" ] && set_env "CLAB_API_USERNAME" "$CLAB_USER"
-    [ -n "$CLAB_PASS" ] && set_env "CLAB_API_PASSWORD" "$CLAB_PASS"
-    ok "ContainerLab configured"
-else
-    skip "ContainerLab"
-fi
-echo ""
-
 # ═══════════════════════════════════════════
 # Step 3: Your Identity
 # ═══════════════════════════════════════════
@@ -572,16 +485,13 @@ echo "  What's configured:"
 grep -q "^NETBOX_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "NetBox" || skip "NetBox"
 grep -q "^NAUTOBOT_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "Nautobot" || skip "Nautobot"
 grep -q "^INFRAHUB_ADDRESS=" "$OPENCLAW_ENV" 2>/dev/null && ok "OpsMill Infrahub" || skip "OpsMill Infrahub"
-grep -q "^ITENTIAL_MCP_PLATFORM_HOST=" "$OPENCLAW_ENV" 2>/dev/null && ok "Itential IAP" || skip "Itential IAP"
 grep -q "^SERVICENOW_INSTANCE_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "ServiceNow" || skip "ServiceNow"
-grep -q "^APIC_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco ACI" || skip "Cisco ACI"
 grep -q "^ISE_BASE=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco ISE" || skip "Cisco ISE"
 grep -q "^CCC_HOST=" "$OPENCLAW_ENV" 2>/dev/null && ok "Catalyst Center" || skip "Catalyst Center"
 grep -q "^NVD_API_KEY=" "$OPENCLAW_ENV" 2>/dev/null && ok "NVD CVE Scanning" || skip "NVD CVE Scanning"
 grep -q "^AZURE_TENANT_ID=" "$OPENCLAW_ENV" 2>/dev/null && ok "Microsoft Graph (Office 365)" || skip "Microsoft Graph (Office 365)"
 grep -q "^GITHUB_PERSONAL_ACCESS_TOKEN=" "$OPENCLAW_ENV" 2>/dev/null && ok "GitHub" || skip "GitHub"
 grep -q "^CML_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco CML" || skip "Cisco CML"
-grep -q "^NSO_ADDRESS=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco NSO" || skip "Cisco NSO"
 grep -q "^AWS_ACCESS_KEY_ID=" "$OPENCLAW_ENV" 2>/dev/null && ok "AWS Cloud" || skip "AWS Cloud"
 grep -q "^GCP_PROJECT_ID=" "$OPENCLAW_ENV" 2>/dev/null && ok "Google Cloud" || skip "Google Cloud"
 grep -q "^MERAKI_API_KEY=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco Meraki" || skip "Cisco Meraki"
@@ -589,7 +499,6 @@ grep -q "^FMC_BASE_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco FMC" || skip "
 grep -q "^TE_TOKEN=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco ThousandEyes" || skip "Cisco ThousandEyes"
 grep -q "^RADKIT_IDENTITY=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco RADKit" || skip "Cisco RADKit"
 [ -d "$NETCLAW_DIR/mcp-servers/uml-mcp" ] && ok "UML Diagrams (Kroki — no credentials required)" || skip "UML Diagrams"
-grep -q "^CLAB_API_SERVER_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "ContainerLab" || skip "ContainerLab"
 grep -q "^VMANAGE_IP=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco SD-WAN" || skip "Cisco SD-WAN"
 grep -q "^GRAFANA_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "Grafana" || skip "Grafana"
 grep -q "^PROMETHEUS_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "Prometheus" || skip "Prometheus"

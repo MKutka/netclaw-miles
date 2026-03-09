@@ -153,7 +153,6 @@ When checking health across sites served by the RADKit service:
 | `pyats-security` | RADKit CLI for remote security audit commands (ACLs, AAA, CoPP) |
 | `meraki-monitoring` | Meraki for cloud-managed devices, RADKit for on-prem devices behind Meraki MX |
 | `te-path-analysis` | ThousandEyes external path + RADKit internal CLI for end-to-end troubleshooting |
-| `nso-device-ops` | NSO for orchestrated config, RADKit for raw CLI access to same devices |
 | `gait-session-tracking` | Record all RADKit remote access sessions in GAIT |
 | `servicenow-change-workflow` | Gate any config changes through RADKit with ServiceNow CRs |
 

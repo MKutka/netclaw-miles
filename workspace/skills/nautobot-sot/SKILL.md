@@ -110,7 +110,6 @@ When generating an IP summary for a specific site:
 | `pyats-network` | Cross-reference Nautobot IPAM with live device IP configs from pyATS |
 | `pyats-routing` | Validate routing table entries against Nautobot IPAM allocations |
 | `radkit-remote-access` | Use Nautobot to identify device IPs, then RADKit to access those devices remotely |
-| `aci-fabric-audit` | Nautobot IPAM vs ACI endpoint tracker for data center reconciliation |
 | `meraki-network-ops` | Nautobot subnet allocations vs Meraki DHCP/VLAN assignments |
 | `aws-network-ops` | Nautobot IPAM vs AWS VPC CIDR allocations for hybrid cloud reconciliation |
 | `gait-session-tracking` | Record all Nautobot IPAM queries and reconciliation results in GAIT |

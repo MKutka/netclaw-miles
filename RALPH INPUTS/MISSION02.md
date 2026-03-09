@@ -25,7 +25,6 @@ Human ──► NetClaw (CCIE Agent)
                ├── MCP: NetBox        ─► DCIM/IPAM source of truth (read-write)
                ├── MCP: ServiceNow    ─► Incidents, Changes, CMDB
                ├── MCP: GAIT          ─► Git-based AI audit trail
-               ├── MCP: Cisco ACI     ─► APIC / ACI fabric
                ├── MCP: Cisco ISE     ─► Identity, posture, TrustSec
                ├── MCP: Wikipedia     ─► Technology context
                ├── MCP: RFC Lookup    ─► IETF standards reference
@@ -44,7 +43,6 @@ Human ──► NetClaw (CCIE Agent)
 | NetBox | `netboxlabs/netbox-mcp-server` | Read-write DCIM/IPAM source of truth |
 | ServiceNow | `echelon-ai-labs/servicenow-mcp` | Incidents, change requests, CMDB |
 | GAIT | `automateyournetwork/gait_mcp` | Git-based AI tracking and audit |
-| Cisco ACI | `automateyournetwork/ACI_MCP` | APIC interaction, policy management, fabric health |
 | Cisco ISE | `automateyournetwork/ISE_MCP` | Identity policy, posture, TrustSec, endpoint control |
 | Wikipedia | `automateyournetwork/Wikipedia_MCP` | Standards and technology context |
 | RFC Lookup | *(internal)* | IETF standards reference |
@@ -74,13 +72,6 @@ Human ──► NetClaw (CCIE Agent)
 | Skill | What It Does |
 |---|---|
 | `netbox-reconcile` | Diffs NetBox intent vs device reality. Flags IP drift, undocumented links, missing interfaces. Opens ServiceNow incidents. |
-
-### ACI Skills
-
-| Skill | What It Does |
-|---|---|
-| `aci-fabric-audit` | Fabric health, policy audit (contracts, EPGs, BDs), fault analysis, endpoint learning verification. |
-| `aci-change-deploy` | Safe ACI policy change workflow with ServiceNow gating, pre/post fault diff, GAIT audit. |
 
 ### ISE Skills
 
@@ -138,17 +129,6 @@ servicenow-change-workflow + pyats-config-mgmt
 → ServiceNow CR created, approved
 → pyats-config-mgmt: baseline → apply → verify
 → ServiceNow CR closed
-→ GAIT full session audit
-```
-
-### ACI Policy Change
-```
-servicenow-change-workflow + aci-change-deploy
-→ CR created with tenant/policy scope
-→ Fabric baseline (faults, contract counters)
-→ APIC change applied
-→ Fault delta check
-→ CR closed / escalated
 → GAIT full session audit
 ```
 
@@ -238,7 +218,6 @@ NetClaw holds CCIE-level depth across:
 - **Switching:** STP variants, VLANs, EtherChannel, VTP, port security
 - **MPLS:** LDP, RSVP-TE, L3VPN, L2VPN
 - **Overlay:** VXLAN/EVPN, DMVPN, FlexVPN, GRE/IPsec, LISP
-- **ACI/SDN:** Tenant/VRF/BD/EPG/Contract model, fabric underlay, APIC REST
 - **Identity:** ISE 802.1X, MAB, TrustSec SGT/SGACL, posture, profiling
 - **Security:** AAA, CoPP, uRPF, first-hop security, MACsec, SNMP hardening
 - **Automation:** pyATS/Genie, YANG/NETCONF/RESTCONF, MCP orchestration
@@ -250,7 +229,7 @@ NetClaw holds CCIE-level depth across:
 | Mission | Status | Summary |
 |---|---|---|
 | MISSION01 | ✅ Complete | Core pyATS agent, 7 skills, Markmap, Draw.io, RFC, NVD CVE, SOUL v1 |
-| MISSION02 | 🟡 Active | NetBox, ServiceNow, GAIT, ACI, ISE, Wikipedia — 6 new MCPs, 7 new skills, 4 enhanced skills, SOUL v2 |
+| MISSION02 | 🟡 Active | NetBox, ServiceNow, GAIT, ISE, Wikipedia — 5 new MCPs, 5 new skills, 4 enhanced skills, SOUL v2 |
 
 ---
 
@@ -265,7 +244,6 @@ netclaw/
 ├── skills/               ← Skill procedure documents
 │   ├── pyats-*.md
 │   ├── netbox-reconcile.md
-│   ├── aci-*.md
 │   ├── ise-*.md
 │   ├── servicenow-change-workflow.md
 │   └── gait-session-tracking.md
@@ -274,7 +252,6 @@ netclaw/
     ├── netbox-mcp.md
     ├── servicenow-mcp.md
     ├── gait-mcp.md
-    ├── aci-mcp.md
     ├── ise-mcp.md
     ├── wikipedia-mcp.md
     ├── rfc-lookup.md

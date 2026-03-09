@@ -110,7 +110,6 @@ When building custom queries:
 | `pyats-topology` | Infrahub provides intended state; pyATS discovers actual device state for reconciliation |
 | `pyats-network` | Cross-reference Infrahub infrastructure model with live device configs |
 | `pyats-routing` | Validate routing table entries against Infrahub prefix/IP allocations |
-| `aci-fabric-audit` | Infrahub fabric model vs ACI actual state |
 | `meraki-network-ops` | Infrahub planned state vs Meraki actual DHCP/VLAN assignments |
 | `aws-network-ops` | Infrahub cloud model vs AWS VPC actual state |
 | `radkit-remote-access` | Use Infrahub to identify device IPs, then RADKit for remote CLI access |

@@ -91,21 +91,10 @@ Color-coded by NetBox reconciliation status:
 
 Data source: **netbox-reconcile** skill output
 
-### 4. Data Center Fabric Diagram
-
-ACI-specific topology showing:
-- Spine/leaf fabric with APIC controllers
-- Tenant/VRF/BD/EPG hierarchy
-- Contract relationships
-- External connectivity (L3Out)
-
-Data source: **aci-fabric-audit** skill output
-
 ## Integration with Other Skills
 
 - **pyats-topology** — Primary data source for physical/logical topology discovery
 - **netbox-reconcile** — Provides reconciliation status for color-coded diagrams
-- **aci-fabric-audit** — ACI fabric topology data for data center diagrams
 - **drawio-diagram** — Use Draw.io for quick interactive editing, then export to .vsdx format
 - **msgraph-files** — Organize Visio files in SharePoint folder structure
 - **msgraph-teams** — Post diagram links to Teams channels for team visibility
@@ -118,7 +107,6 @@ Data source: **aci-fabric-audit** skill output
 
 Examples:
   campus-physical-topology-2026-02-22.vsdx
-  dc-aci-fabric-2026-02-22.vsdx
   wan-bgp-logical-2026-02-22.vsdx
   site-a-reconciliation-2026-02-22.vsdx
 ```

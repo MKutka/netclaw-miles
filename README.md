@@ -4,12 +4,12 @@
 
 # Netclaw-Miles
 
-Netclaw-Miles is a CCIE-level AI network engineering coworker forked from [NetClaw](https://github.com/automateyournetwork/netclaw). It keeps the same stack (OpenClaw, Claude, 77 skills, 36 MCP server backends) and capabilities, with a focus on **enterprise networking and Cisco Meraki**. Built on [OpenClaw](https://github.com/openclaw/openclaw) with Anthropic Claude for complete network automation: ITSM gating, source-of-truth reconciliation, immutable audit trails, packet capture analysis, GitHub config-as-code, Cisco CML and ContainerLab labs, Cisco NSO orchestration, Cisco SD-WAN vManage monitoring, Grafana observability, Cisco Meraki Dashboard management, Cisco ThousandEyes, AWS cloud networking, Cisco Secure Firewall policy auditing, Itential orchestration, UML diagram generation, live BGP/OSPF participation, nmap and gtrace, Slack-native operations, and Microsoft 365 integration.
+Netclaw-Miles is a CCIE-level AI network engineering coworker forked from [NetClaw](https://github.com/automateyournetwork/netclaw). It keeps the same stack (OpenClaw, Claude, 69 skills, 32 MCP server backends) and capabilities, with a focus on **enterprise networking and Cisco Meraki**. Built on [OpenClaw](https://github.com/openclaw/openclaw) with Anthropic Claude for complete network automation: ITSM gating, source-of-truth reconciliation, immutable audit trails, packet capture analysis, GitHub config-as-code, Cisco CML labs, Cisco SD-WAN vManage monitoring, Grafana observability, Cisco Meraki Dashboard management, Cisco ThousandEyes, AWS cloud networking, Cisco Secure Firewall policy auditing, UML diagram generation, live BGP/OSPF participation, nmap and gtrace, Slack-native operations, and Microsoft 365 integration.
 
 ## About Netclaw-Miles
 
 - **Credit:** This project is a fork of [NetClaw](https://github.com/automateyournetwork/netclaw) by [automateyournetwork](https://github.com/automateyournetwork). We retain most of the same features and functionality.
-- **Focus:** Netclaw-Miles is oriented toward **enterprise networking**, especially **Cisco Meraki** (Dashboard API, wireless, switching, security appliances, cameras, diagnostics), while still supporting the broader NetClaw toolset (pyATS, NetBox, ServiceNow, and the rest of the 36 MCP backends).
+- **Focus:** Netclaw-Miles is oriented toward **enterprise networking**, especially **Cisco Meraki** (Dashboard API, wireless, switching, security appliances, cameras, diagnostics), while still supporting the broader NetClaw toolset (pyATS, NetBox, ServiceNow, and the rest of the 32 MCP backends).
 - **Miles:** The agent is **Miles**—a reincarnation of **Meraki Miles**, the former mascot of Meraki—embodying the same CCIE-level engineer persona with a Meraki-native identity.
 - **Intentions:** To provide a Meraki-first, enterprise-ready variant of NetClaw for teams running cloud-managed networks, with the same safety rules, GAIT audit trail, and change-management practices as upstream.
 
@@ -27,7 +27,7 @@ cd netclaw-miles
 
 To install the original [NetClaw](https://github.com/automateyournetwork/netclaw) instead, use `https://github.com/automateyournetwork/netclaw.git` and `cd netclaw`.
 
-That's it. The installer clones 36 MCP servers, deploys 77 skills, then launches a two-phase setup:
+That's it. The installer clones 32 MCP servers, deploys 69 skills, then launches a two-phase setup:
 
 **Phase 1: `openclaw onboard`** (OpenClaw's built-in wizard)
 - Pick your AI provider (Anthropic, OpenAI, Bedrock, Vertex, 30+ options)
@@ -37,7 +37,7 @@ That's it. The installer clones 36 MCP servers, deploys 77 skills, then launches
 
 **Phase 2: `./scripts/setup.sh`** (Netclaw-Miles platform credentials)
 - Network devices (testbed.yaml editor)
-- Platform credentials (NetBox, Nautobot, Infrahub, Itential, ServiceNow, ACI, ISE, Catalyst Center, NVD, Microsoft Graph, GitHub, CML, NSO, Meraki, FMC, ThousandEyes, RADKit, AWS, GCP, ContainerLab, SD-WAN, Grafana, Prometheus, Kubeshark)
+- Platform credentials (NetBox, Nautobot, Infrahub, ServiceNow, ISE, Catalyst Center, NVD, Microsoft Graph, GitHub, CML, Meraki, FMC, ThousandEyes, RADKit, AWS, GCP, SD-WAN, Grafana, Prometheus, Kubeshark)
 - Your identity (name, role, timezone for USER.md)
 
 After setup, start NetClaw:
@@ -64,7 +64,6 @@ NetClaw is an autonomous network engineering agent powered by Claude that can:
 - **Discover** topology via CDP/LLDP, ARP, routing peers — reconcile against NetBox cables
 - **Configure** devices with full ITSM-gated change management — ServiceNow CR, baseline, apply, verify, rollback
 - **Reconcile** NetBox or Nautobot source of truth against live device state — flag IP drift, undocumented links, missing interfaces; query Nautobot IPAM for IP addresses, prefixes, VRF/tenant/site filtering when the org uses Nautobot instead of NetBox
-- **Manage** ACI fabric — health audits, policy analysis, safe tenant/VRF/BD/EPG changes with fault delta rollback
 - **Investigate** endpoints via ISE — auth history, posture, profiling, human-authorized quarantine
 - **Audit** Cisco Secure Firewall policies via FMC — search access rules by IP/FQDN, resolve FTD device policies, cross-FMC consistency checks, and SGT-based policy review
 - **Manage** Cisco Meraki infrastructure via Dashboard API (~804 endpoints) — org inventory, networks, devices, wireless SSIDs, RF profiles, switch ports, VLANs, MX firewall rules, site-to-site VPN, content filtering, security events, camera analytics, live diagnostics (ping, cable test), and configuration change audit
@@ -89,9 +88,7 @@ NetClaw is an autonomous network engineering agent powered by Claude that can:
 - **Notify** via Microsoft Teams — health alerts, change updates, and report delivery to Teams channels
 - **Analyze** packet captures — upload a pcap to Slack and NetClaw runs deep tshark analysis: protocol hierarchy, conversations, endpoints, DNS/HTTP extraction, expert info, and filtered inspection
 - **Track** network changes in GitHub — create issues from findings, commit config backups, open PRs for changes, link to ServiceNow CRs
-- **Orchestrate** network services via Cisco NSO — retrieve device configs from NSO's CDB, check sync status, inspect operational state, discover service types and deployed instances, platform inventory, and NED management — all via RESTCONF from Slack
 - **Simulate** network topologies in Cisco CML — create labs, add nodes, wire links, start/stop labs, execute CLI commands, capture packets on lab links, and manage CML users — all from natural language via Slack
-- **Deploy** containerized network labs via ContainerLab — deploy multi-vendor topologies (SR Linux, cEOS, IOS XR, NX-OS, FRR, cRPD), inspect running labs, execute commands on nodes, and destroy labs when done — all through the ContainerLab API
 - **Inspect** AWS cloud networking — VPCs, Transit Gateways, Cloud WAN, VPN tunnels, Network Firewalls, flow logs, ENI details, and route tables via 27 read-only AWS Network tools
 - **Monitor** AWS CloudWatch — query metrics (VPN tunnel state, NAT GW drops, TGW traffic), check alarms, run Logs Insights queries, analyze VPC flow logs
 - **Audit** AWS security — IAM users/roles/policies (read-only), CloudTrail API event history, credential rotation compliance, MFA enforcement
@@ -111,7 +108,6 @@ Human (Slack / WebChat) --> NetClaw (CCIE Agent on OpenClaw)
                                 |     MCP: Catalyst Center --> DNA-C API (devices, clients, sites)
                                 |
                                 |-- INFRASTRUCTURE:
-                                |     MCP: Cisco ACI       --> APIC / ACI fabric
                                 |     MCP: Cisco ISE       --> Identity, posture, TrustSec
                                 |     MCP: NetBox          --> DCIM/IPAM source of truth (read-write)
                                 |     MCP: Nautobot        --> IPAM source of truth (5 tools, alternative to NetBox)
@@ -129,10 +125,6 @@ Human (Slack / WebChat) --> NetClaw (CCIE Agent on OpenClaw)
                                 |
                                 |-- PACKET ANALYSIS:
                                 |     MCP: Packet Buddy     --> pcap/pcapng deep analysis via tshark
-                                |
-                                |-- NETWORK ORCHESTRATION:
-                                |     MCP: Cisco NSO          --> Device config, sync, services via RESTCONF
-                                |     MCP: Itential IAP       --> Config mgmt, compliance, workflows, lifecycle (65+ tools)
                                 |
                                 |-- FIREWALL SECURITY:
                                 |     MCP: Cisco FMC          --> Access policy search, FTD targeting, multi-FMC
@@ -160,7 +152,6 @@ Human (Slack / WebChat) --> NetClaw (CCIE Agent on OpenClaw)
                                 |
                                 |-- LAB & SIMULATION:
                                 |     MCP: Cisco CML         --> Lab lifecycle, topology, nodes, captures
-                                |     MCP: ContainerLab      --> Containerized labs (SR Linux, cEOS, FRR) via API
                                 |
                                 |-- AWS CLOUD:
                                 |     MCP: AWS Network        --> VPC, TGW, Cloud WAN, VPN, Firewall (27 tools)
@@ -207,25 +198,22 @@ Netclaw-Miles ships with the full set of OpenClaw workspace markdown files. Thes
 
 ---
 
-## MCP Servers (36)
+## MCP Servers (32)
 
 | # | MCP Server | Repository | Transport | Function |
 |---|------------|------------|-----------|----------|
 | 1 | pyATS | [automateyournetwork/pyATS_MCP](https://github.com/automateyournetwork/pyATS_MCP) | stdio (Python) | Device CLI, Genie parsers, config push, dynamic test execution |
 | 2 | Catalyst Center | [richbibby/catalyst-center-mcp](https://github.com/richbibby/catalyst-center-mcp) | stdio (Python) | DNA-C API — devices, clients, sites, interfaces |
-| 4 | Cisco ACI | [automateyournetwork/ACI_MCP](https://github.com/automateyournetwork/ACI_MCP) | stdio (Python) | APIC interaction, policy management, fabric health |
-| 5 | Cisco ISE | [automateyournetwork/ISE_MCP](https://github.com/automateyournetwork/ISE_MCP) | stdio (Python) | Identity policy, posture, TrustSec, endpoint control |
+| 4 | Cisco ISE | [automateyournetwork/ISE_MCP](https://github.com/automateyournetwork/ISE_MCP) | stdio (Python) | Identity policy, posture, TrustSec, endpoint control |
 | 6 | NetBox | [netboxlabs/netbox-mcp-server](https://github.com/netboxlabs/netbox-mcp-server) | stdio (Python) | Read-write DCIM/IPAM source of truth |
 | 7 | Nautobot | [aiopnet/mcp-nautobot](https://github.com/aiopnet/mcp-nautobot) | stdio (Python) | IPAM source of truth — IP addresses, prefixes, VRF/tenant/site filtering (5 tools, alternative to NetBox) |
 | 8 | OpsMill Infrahub | [opsmill/infrahub-mcp](https://github.com/opsmill/infrahub-mcp) | stdio (Python) | Schema-driven SoT: nodes, GraphQL queries, versioned branches (10 tools) | `INFRAHUB_ADDRESS`, `INFRAHUB_API_TOKEN` |
-| 9 | Itential IAP | [itential/itential-mcp](https://github.com/itential/itential-mcp) | stdio (Python) | Network automation orchestration: config mgmt, compliance, workflows, golden config, lifecycle (65+ tools) | `ITENTIAL_MCP_PLATFORM_HOST`, `ITENTIAL_MCP_PLATFORM_USER`, `ITENTIAL_MCP_PLATFORM_PASSWORD` |
-| 10 | ServiceNow | [echelon-ai-labs/servicenow-mcp](https://github.com/echelon-ai-labs/servicenow-mcp) | stdio (Python) | Incidents, change requests, CMDB |
+| 9 | ServiceNow | [echelon-ai-labs/servicenow-mcp](https://github.com/echelon-ai-labs/servicenow-mcp) | stdio (Python) | Incidents, change requests, CMDB |
 | 11 | Microsoft Graph | [@anthropic-ai/microsoft-graph-mcp](https://www.npmjs.com/package/@anthropic-ai/microsoft-graph-mcp) | npx | OneDrive, SharePoint, Visio, Teams, Exchange via Graph API |
 | 12 | GitHub | [github/github-mcp-server](https://github.com/github/github-mcp-server) | Docker (Go) | Issues, PRs, code search, Actions, config-as-code workflows |
 | 13 | Packet Buddy | Built-in | stdio (Python) | pcap/pcapng deep analysis via tshark — upload pcaps to Slack |
 | 14 | Cisco CML | [xorrkaz/cml-mcp](https://github.com/xorrkaz/cml-mcp) | stdio (Python) | Lab lifecycle, topology, nodes, links, captures, CLI exec, admin |
-| 15 | Cisco NSO | [NSO-developer/cisco-nso-mcp-server](https://github.com/NSO-developer/cisco-nso-mcp-server) | stdio (Python) | Device config, state, sync, services, NED IDs via RESTCONF |
-| 16 | Cisco FMC | [CiscoDevNet/CiscoFMC-MCP-server-community](https://github.com/CiscoDevNet/CiscoFMC-MCP-server-community) | HTTP (Python) | Secure Firewall access policy search, FTD targeting, multi-FMC (4 tools) |
+| 15 | Cisco FMC | [CiscoDevNet/CiscoFMC-MCP-server-community](https://github.com/CiscoDevNet/CiscoFMC-MCP-server-community) | HTTP (Python) | Secure Firewall access policy search, FTD targeting, multi-FMC (4 tools) |
 | 17 | Cisco Meraki | [CiscoDevNet/meraki-magic-mcp-community](https://github.com/CiscoDevNet/meraki-magic-mcp-community) | stdio (Python) | Meraki Dashboard API — ~804 endpoints: orgs, networks, wireless, switching, security, cameras, diagnostics |
 | 18 | ThousandEyes (community) | [CiscoDevNet/thousandeyes-mcp-community](https://github.com/CiscoDevNet/thousandeyes-mcp-community) | stdio (Python) | Tests, agents, path visualization, dashboards, users, account groups (9 read-only tools) |
 | 19 | ThousandEyes (official) | [CiscoDevNet/ThousandEyes-MCP-Server-official](https://github.com/CiscoDevNet/ThousandEyes-MCP-Server-official) | Remote HTTP | Alerts, outages, BGP routes, instant tests, endpoint agents, anomalies, AI views (~20 tools) |
@@ -249,19 +237,18 @@ Netclaw-Miles ships with the full set of OpenClaw workspace markdown files. Thes
 | 37 | RFC Lookup | [@mjpitz/mcp-rfc](https://github.com/mjpitz/mcp-rfc) | npx | IETF RFC search and retrieval |
 | 38 | UML MCP | [antoinebou12/uml-mcp](https://github.com/antoinebou12/uml-mcp) | stdio (Python) | 27+ UML/diagram types via Kroki — class, sequence, nwdiag, rackdiag, packetdiag, C4, Mermaid, D2, Graphviz, ERD, BPMN (2 tools) |
 | 39 | Protocol MCP | [automateyournetwork/WontYouBeMyNeighbour](https://github.com/automateyournetwork/WontYouBeMyNeighbour) | stdio (Python) | Live BGP/OSPF/GRE control-plane participation — peer with routers, inject/withdraw routes, query RIB/LSDB, adjust metrics (10 tools) |
-| 40 | ContainerLab | [seanerama/clab-mcp-server](https://github.com/seanerama/clab-mcp-server) | stdio (Python) | Containerized network lab lifecycle — deploy, inspect, exec, destroy labs (SR Linux, cEOS, FRR, IOS-XR, NX-OS) via ContainerLab API (6 tools) |
-| 41 | Cisco SD-WAN | [siddhartha2303/cisco-sdwan-mcp](https://github.com/siddhartha2303/cisco-sdwan-mcp) | stdio (Python) | vManage read-only monitoring — fabric devices, WAN Edge inventory, templates, policies, alarms, BFD, OMP routes, control connections (12 tools) |
+| 40 | Cisco SD-WAN | [siddhartha2303/cisco-sdwan-mcp](https://github.com/siddhartha2303/cisco-sdwan-mcp) | stdio (Python) | vManage read-only monitoring — fabric devices, WAN Edge inventory, templates, policies, alarms, BFD, OMP routes, control connections (12 tools) |
 | 42 | Grafana | [grafana/mcp-grafana](https://github.com/grafana/mcp-grafana) | uvx (Go) | Observability platform — dashboards, Prometheus PromQL, Loki LogQL, alerting, incidents, OnCall, annotations, panel rendering (75+ tools) |
 | 43 | Prometheus | [pab1it0/prometheus-mcp-server](https://github.com/pab1it0/prometheus-mcp-server) | stdio (Python) | Direct PromQL monitoring — instant/range queries, metric discovery with pagination, metric metadata, scrape target health, system health check (6 tools) |
 | 44 | Kubeshark | [kubeshark/kubeshark](https://github.com/kubeshark/kubeshark) | remote HTTP (Go) | Kubernetes L4/L7 traffic analysis — capture, pcap export, snapshots, KFL filtering, TCP/UDP flow stats, TLS decryption via eBPF (6 tools) |
 | 45 | nmap | [sbmilburn/nmap-mcp](https://github.com/sbmilburn/nmap-mcp) | stdio (Python) | Network scanning — host discovery, SYN/TCP/UDP port scanning, service/OS detection, NSE scripts, vuln scanning with CIDR allowlist + audit logging (14 tools) |
 | 46 | gtrace | [hervehildenbrand/gtrace](https://github.com/hervehildenbrand/gtrace) | stdio (Go binary) | Advanced traceroute (MPLS/ECMP/NAT detection), MTR continuous monitoring, GlobalPing distributed probes (500+ locations), ASN lookup, geolocation, reverse DNS (6 tools) |
 
-All MCP servers communicate via stdio (JSON-RPC 2.0) through `scripts/mcp-call.py`. GitHub MCP runs via Docker. CML MCP is pip-installed (`cml-mcp`). NSO MCP is pip-installed (`cisco-nso-mcp-server`). FMC MCP runs as an HTTP server on port 8000. Meraki Magic MCP runs via FastMCP stdio (~804 Dashboard API endpoints). ThousandEyes community MCP runs via stdio (9 read-only tools); ThousandEyes official MCP is a remote HTTP endpoint hosted by Cisco at `https://api.thousandeyes.com/mcp` (~20 tools via `npx mcp-remote`). RADKit MCP runs via FastMCP stdio with certificate-based cloud relay auth (5 tools for remote device access). Nautobot MCP runs via MCP SDK stdio (5 IPAM tools, alternative to NetBox). Infrahub MCP runs via stdio (10 tools for schema-driven SoT, GraphQL queries, and versioned branches). Itential MCP is pip-installed (`itential-mcp`) and runs via stdio (65+ tools for network automation orchestration). UML MCP runs via stdio (2 tools for 27+ diagram types via Kroki multi-engine rendering). Protocol MCP runs via stdio (10 tools for live BGP/OSPF/GRE control-plane participation using scapy-based protocol speakers). ContainerLab MCP runs via stdio (6 tools for containerized network lab lifecycle management via ContainerLab API). SD-WAN MCP runs via stdio (12 read-only tools for Cisco SD-WAN vManage fabric monitoring). Grafana MCP runs via `uvx mcp-grafana` (75+ tools for dashboards, Prometheus, Loki, alerting, incidents, OnCall). Prometheus MCP is pip-installed (`prometheus-mcp-server`) and runs via stdio (6 tools for direct PromQL queries, metric discovery, and scrape target health). Kubeshark MCP is a remote HTTP endpoint running inside a Kubernetes cluster (6 tools for L4/L7 traffic capture, pcap export, flow analysis, and TLS decryption via eBPF; access via `kubectl port-forward svc/kubeshark-hub 8898:8898`). nmap MCP runs via FastMCP stdio (14 tools for host discovery, port scanning, service/OS detection, NSE scripts, and vulnerability scanning with CIDR scope enforcement and audit logging). gtrace MCP runs via `gtrace mcp` stdio (6 tools for advanced traceroute with MPLS/ECMP/NAT detection, MTR continuous monitoring, GlobalPing distributed probes, ASN lookup, geolocation, and reverse DNS). AWS MCPs run via `uvx` (uv tool runner). GCP MCPs are remote HTTP endpoints hosted by Google (OAuth 2.0 auth). No persistent connections, no port management.
+All MCP servers communicate via stdio (JSON-RPC 2.0) through `scripts/mcp-call.py`. GitHub MCP runs via Docker. CML MCP is pip-installed (`cml-mcp`). FMC MCP runs as an HTTP server on port 8000. Meraki Magic MCP runs via FastMCP stdio (~804 Dashboard API endpoints). ThousandEyes community MCP runs via stdio (9 read-only tools); ThousandEyes official MCP is a remote HTTP endpoint hosted by Cisco at `https://api.thousandeyes.com/mcp` (~20 tools via `npx mcp-remote`). RADKit MCP runs via FastMCP stdio with certificate-based cloud relay auth (5 tools for remote device access). Nautobot MCP runs via MCP SDK stdio (5 IPAM tools, alternative to NetBox). Infrahub MCP runs via stdio (10 tools for schema-driven SoT, GraphQL queries, and versioned branches). UML MCP runs via stdio (2 tools for 27+ diagram types via Kroki multi-engine rendering). Protocol MCP runs via stdio (10 tools for live BGP/OSPF/GRE control-plane participation using scapy-based protocol speakers). SD-WAN MCP runs via stdio (12 read-only tools for Cisco SD-WAN vManage fabric monitoring). Grafana MCP runs via `uvx mcp-grafana` (75+ tools for dashboards, Prometheus, Loki, alerting, incidents, OnCall). Prometheus MCP is pip-installed (`prometheus-mcp-server`) and runs via stdio (6 tools for direct PromQL queries, metric discovery, and scrape target health). Kubeshark MCP is a remote HTTP endpoint running inside a Kubernetes cluster (6 tools for L4/L7 traffic capture, pcap export, flow analysis, and TLS decryption via eBPF; access via `kubectl port-forward svc/kubeshark-hub 8898:8898`). nmap MCP runs via FastMCP stdio (14 tools for host discovery, port scanning, service/OS detection, NSE scripts, and vulnerability scanning with CIDR scope enforcement and audit logging). gtrace MCP runs via `gtrace mcp` stdio (6 tools for advanced traceroute with MPLS/ECMP/NAT detection, MTR continuous monitoring, GlobalPing distributed probes, ASN lookup, geolocation, and reverse DNS). AWS MCPs run via `uvx` (uv tool runner). GCP MCPs are remote HTTP endpoints hosted by Google (OAuth 2.0 auth). No persistent connections, no port management.
 
 ---
 
-## Skills (77)
+## Skills (69)
 
 ### pyATS Device Skills (9)
 
@@ -298,8 +285,6 @@ All MCP servers communicate via stdio (JSON-RPC 2.0) through `scripts/mcp-call.p
 | **netbox-reconcile** | Diffs NetBox intent vs device reality. Detects 7 discrepancy types: IP_DRIFT, MISSING_INTERFACE, UNDOCUMENTED_LINK, CABLE_MISMATCH, VLAN_MISMATCH, STATUS_MISMATCH, MTU_MISMATCH. Opens ServiceNow incidents for CRITICAL findings. Generates Markmap drift summary. GAIT audit. |
 | **nautobot-sot** | Nautobot IPAM source of truth (5 tools, alternative to NetBox): query IP addresses with filtering by status (active/reserved/deprecated), role (loopback/secondary/anycast), VRF, tenant; look up network prefixes by site and role; full-text search across all IP data; retrieve IP details by Nautobot UUID; verify API connectivity. Supports pagination (up to 1000 results). Integrates with pyATS topology for intended-vs-actual reconciliation. |
 | **infrahub-sot** | OpsMill Infrahub schema-driven source of truth (10 tools): get_schema_mapping for all available kinds, get_nodes/get_node_details for infrastructure objects (InfraDevice, InfraInterface, InfraIPAddress, InfraPrefix), get_related_nodes for relationship traversal, query_graphql for custom queries and mutations, get_branches/branch_create/branch_delete for versioned change management, branch_diff for change review. Supports GraphQL-based schema introspection and branch-based workflows for safe infrastructure changes. |
-| **aci-fabric-audit** | ACI fabric health: node status, firmware, policy tree walk (Tenant/VRF/BD/EPG), contract analysis, fault analysis with health scores, endpoint learning verification. Severity-rated consolidated report. GAIT audit. |
-| **aci-change-deploy** | Safe ACI policy changes: ServiceNow CR gating, pre-change fault baseline, dependency-ordered deployment (Tenant > VRF > BD > AP > EPG), post-change fault delta, automatic rollback on fault increase. GAIT audit. |
 | **ise-posture-audit** | ISE audit: authorization policy review (default-allow detection), posture compliance assessment, profiling coverage analysis, TrustSec SGT matrix analysis (permit-all detection), active session health. |
 | **ise-incident-response** | Endpoint investigation: lookup by MAC/IP/username, auth history, posture/profile review, risk assessment. **Human decision point required** before any quarantine action. ServiceNow Security Incident creation. GAIT audit. |
 | **servicenow-change-workflow** | Full ITSM lifecycle: pre-change incident check, CR creation, approval gate, execution coordination, post-change verification, rollback procedure, CR closure/escalation. Supports Normal, Standard, and Emergency change types. |
@@ -318,7 +303,7 @@ All MCP servers communicate via stdio (JSON-RPC 2.0) through `scripts/mcp-call.p
 | Skill | What It Does |
 |-------|-------------|
 | **msgraph-files** | OneDrive/SharePoint file operations: upload, download, search, organize network documentation, config backups, audit reports, and diagram artifacts |
-| **msgraph-visio** | Visio diagram generation from CDP/LLDP discovery data. Upload .vsdx files to SharePoint, create sharing links. Physical, logical, reconciliation, and ACI fabric diagram types. |
+| **msgraph-visio** | Visio diagram generation from CDP/LLDP discovery data. Upload .vsdx files to SharePoint, create sharing links. Physical, logical, and reconciliation diagram types. |
 | **msgraph-teams** | Teams channel notifications: health alerts, security alerts, change completion, incident updates, report delivery, diagram sharing. Severity-coded HTML messages with threading. |
 
 ### GitHub Skills (1)
@@ -357,25 +342,6 @@ All MCP servers communicate via stdio (JSON-RPC 2.0) through `scripts/mcp-call.p
 | **cml-node-operations** | Node operations: start/stop individual nodes, set startup configs (IOS, NX-OS, IOS-XR templates), execute CLI commands via pyATS, retrieve console logs for troubleshooting, download running configs, wipe and reconfigure nodes. |
 | **cml-packet-capture** | Capture packets on CML lab links: start/stop captures with BPF filters, download pcap files, and hand off to Packet Buddy for deep tshark analysis. Protocol-specific capture workflows for BGP, OSPF, STP, ICMP troubleshooting. |
 | **cml-admin** | CML server administration: user/group management, system info (CPU, RAM, disk), licensing status, resource usage monitoring, capacity planning for new labs. |
-
-### ContainerLab Skills (1)
-
-| Skill | What It Does |
-|-------|-------------|
-| **clab-lab-management** | Containerized network lab lifecycle via ContainerLab API (6 tools): authenticate with clab-api-server, list running labs, deploy multi-vendor topologies (SR Linux, cEOS, IOS XR, NX-OS, FTDv, FRR, cRPD, generic Linux), inspect lab details with management IPs, execute commands on individual or all nodes, and graceful lab destruction with cleanup. Supports spine-leaf fabrics, multi-vendor interop labs, and protocol testing topologies. Requires ContainerLab API server running (Docker or native). GAIT audit trail. |
-
-### Cisco NSO Skills (2)
-
-| Skill | What It Does |
-|-------|-------------|
-| **nso-device-ops** | NSO device operations: retrieve full config from NSO's CDB, inspect operational state, check device sync status, sync-from-device to pull live config into NSO, get platform info (model, serial, OS), list NED IDs and device groups. RESTCONF API. |
-| **nso-service-mgmt** | NSO service management: discover available service types (L3VPN, ACL, QoS, etc.), list deployed service instances, service health checks via sync verification, pre-change impact analysis (which services touch a device), service inventory reporting. |
-
-### Itential IAP Skills (1)
-
-| Skill | What It Does |
-|-------|-------------|
-| **itential-automation** | Itential Automation Platform network orchestration (65+ tools): platform health monitoring (get_health for adapters, applications, system status), device management (get_devices, get_device_configuration, backup_device_configuration, apply_device_configuration), compliance operations (get_compliance_plans, run_compliance_plan, describe_compliance_report), golden config management (get_golden_config_trees, render_template), workflow orchestration (get_workflows, start_workflow, describe_job, get_job_metrics_for_workflow), and lifecycle automation. Integrates with ServiceNow for change management gating. GAIT audit trail. |
 
 ### Cisco FMC Skills (1)
 
@@ -847,17 +813,6 @@ servicenow-change-workflow + pyats-config-mgmt
 --> GAIT full session audit
 ```
 
-### ACI Policy Change
-```
-servicenow-change-workflow + aci-change-deploy
---> CR created with tenant/policy scope
---> Fabric baseline (faults, contract counters)
---> APIC change applied (dependency order)
---> Fault delta check
---> CR closed / escalated
---> GAIT full session audit
-```
-
 ### Security Audit
 ```
 pyats-security
@@ -1322,8 +1277,6 @@ netclaw/
 │       ├── nautobot-sot/                # Nautobot IPAM — IPs, prefixes, VRF/tenant
 │       ├── infrahub-sot/               # Infrahub schema-driven SoT, GraphQL, branches
 │       ├── itential-automation/        # Itential IAP orchestration, compliance, golden config
-│       ├── aci-fabric-audit/             # ACI fabric health & policy audit
-│       ├── aci-change-deploy/            # Safe ACI policy changes
 │       ├── ise-posture-audit/            # ISE posture & TrustSec audit
 │       ├── ise-incident-response/        # Endpoint investigation & quarantine
 │       ├── servicenow-change-workflow/   # Full ITSM change lifecycle
@@ -1348,12 +1301,9 @@ netclaw/
 │       ├── cml-node-operations/        # CML node start/stop, configs, CLI exec
 │       ├── cml-packet-capture/         # CML link packet capture + Packet Buddy
 │       ├── cml-admin/                  # CML users, groups, system, licensing
-│       ├── nso-device-ops/             # NSO device config, state, sync, platform
-│       ├── nso-service-mgmt/           # NSO service types and instances
 │       ├── fmc-firewall-ops/          # FMC access policy search, FTD targeting
 │       ├── radkit-remote-access/     # RADKit cloud-relayed CLI, SNMP, device inventory
 │       ├── protocol-participation/ # Live BGP/OSPF/GRE control-plane participation (10 tools)
-│       ├── clab-lab-management/  # ContainerLab lab lifecycle via API (6 tools)
 │       ├── sdwan-ops/            # Cisco SD-WAN vManage read-only monitoring (12 tools)
 │       ├── grafana-observability/ # Grafana dashboards, Prometheus, Loki, alerting, incidents (75+ tools)
 │       ├── prometheus-monitoring/ # Direct Prometheus PromQL queries, metric discovery, target health (6 tools)
@@ -1387,7 +1337,6 @@ netclaw/
 │   ├── gait_mcp/                         # Git-based audit trail
 │   ├── netbox-mcp-server/                # DCIM/IPAM source of truth
 │   ├── servicenow-mcp/                   # ITSM integration
-│   ├── ACI_MCP/                          # Cisco ACI / APIC
 │   ├── ISE_MCP/                          # Cisco ISE
 │   ├── Wikipedia_MCP/                    # Technology context
 │   ├── mcp-nvd/                          # NVD CVE database (Python)
@@ -1400,15 +1349,13 @@ netclaw/
 │   ├── radkit-mcp-server-community/   # Cisco RADKit cloud-relayed device access (5 tools)
 │   ├── mcp-nautobot/                  # Nautobot IPAM source of truth (5 tools)
 │   ├── infrahub-mcp/                 # OpsMill Infrahub schema-driven SoT (10 tools)
-│   ├── itential-mcp/                 # Itential IAP network automation (65+ tools)
 │   ├── uml-mcp/                         # 27+ diagram types via Kroki (2 tools)
 │   ├── protocol-mcp/                   # BGP/OSPF/GRE protocol speakers (10 tools)
-│   ├── clab-mcp-server/               # ContainerLab lab management (6 tools)
 │   └── cisco-sdwan-mcp/               # Cisco SD-WAN vManage monitoring (12 tools)
 ├── lab/
 │   └── frr-testbed/                     # Docker FRR 3-router lab for protocol testing
 ├── scripts/
-│   ├── install.sh                        # Full bootstrap installer (45 steps)
+│   ├── install.sh                        # Full bootstrap installer (40 steps)
 │   ├── setup.sh                          # Interactive setup wizard (API key, platforms, Slack)
 │   ├── mcp-call.py                       # MCP JSON-RPC protocol handler
 │   └── gait-stdio.py                     # GAIT server stdio wrapper
@@ -1455,10 +1402,8 @@ netclaw/
 9. **Clones NetBox MCP** — `git clone` + `pip3 install` dependencies
 10. **Clones Nautobot MCP** — `git clone` + `pip3 install -e .` for Nautobot IPAM source of truth (5 tools: IP addresses, prefixes, VRF/tenant/site filtering, search, connection test). Python 3.13+ required; falls back to core deps on older Python. Alternative to NetBox.
 11. **Clones Infrahub MCP** — `git clone` + `pip3 install -e .` for OpsMill Infrahub schema-driven source of truth (10 tools: nodes, GraphQL queries, versioned branches). Requires Infrahub instance with API token.
-12. **Installs Itential MCP** — `pip3 install itential-mcp` (falls back to `git clone` + `pip3 install -e .`) for Itential Automation Platform network orchestration (65+ tools: config mgmt, compliance, workflows, golden config, lifecycle). Requires IAP instance with credentials.
-13. **Clones ServiceNow MCP** — `git clone` + `pip3 install` dependencies
-14. **Clones ACI MCP** — `git clone` + `pip3 install` dependencies
-15. **Clones ISE MCP** — `git clone` + `pip3 install` dependencies
+12. **Clones ServiceNow MCP** — `git clone` + `pip3 install` dependencies
+13. **Clones ISE MCP** — `git clone` + `pip3 install` dependencies
 16. **Clones Wikipedia MCP** — `git clone` + `pip3 install` dependencies
 17. **Clones NVD CVE MCP** — `git clone` + `pip3 install -e .`
 18. **Clones Subnet Calculator MCP** — `git clone` (enhanced with IPv6 support)
@@ -1468,8 +1413,7 @@ netclaw/
 23. **Pulls GitHub MCP** — `docker pull ghcr.io/github/github-mcp-server` (requires Docker)
 24. **Installs Packet Buddy MCP** — verifies/installs tshark, creates pcap upload directory
 25. **Installs CML MCP** — `pip3 install cml-mcp` (requires Python 3.12+, CML 2.9+)
-26. **Installs NSO MCP** — `pip3 install cisco-nso-mcp-server` (requires Python 3.12+, NSO with RESTCONF)
-27. **Installs FMC MCP** — `git clone` + `pip3 install -r requirements.txt` for Cisco Secure Firewall policy search (HTTP transport, port 8000)
+26. **Installs FMC MCP** — `git clone` + `pip3 install -r requirements.txt` for Cisco Secure Firewall policy search (HTTP transport, port 8000)
 28. **Installs Meraki Magic MCP** — `git clone` + `pip install -r requirements.txt` for Cisco Meraki Dashboard API (~804 endpoints: orgs, networks, wireless, switching, security, cameras, diagnostics). Python 3.13+ recommended; falls back to core deps on older Python.
 29. **Installs ThousandEyes Community MCP** — `git clone` + `pip install -r requirements.txt` for ThousandEyes monitoring (9 read-only tools: tests, agents, path vis, dashboards). Python 3.12+ required.
 30. **Configures ThousandEyes Official MCP** — Remote HTTP endpoint hosted by Cisco at `https://api.thousandeyes.com/mcp` (~20 tools: alerts, outages, BGP, instant tests, endpoint agents). Pre-caches `mcp-remote` via npm. No local install required.
@@ -1477,16 +1421,15 @@ netclaw/
 32. **Installs AWS Cloud MCP Servers** — Installs `uv` (Astral), validates 6 AWS MCP packages via `uvx` (Network, CloudWatch, IAM, CloudTrail, Cost Explorer, Diagram)
 33. **Configures GCP Cloud MCP Servers** — Checks for `gcloud` CLI and credentials; 4 remote HTTP servers hosted by Google (Compute Engine, Cloud Monitoring, Cloud Logging, Resource Manager)
 35. **Installs UML MCP** — `git clone` + `pip3 install -e .` for 27+ diagram types via Kroki multi-engine rendering (2 tools: generate_uml, generate_diagram_url). Python 3.10+ required. nwdiag (network), rackdiag (rack), packetdiag (protocol headers), sequence, state, class, C4, Mermaid, D2, Graphviz, ERD, BPMN.
-36. **Installs ContainerLab MCP** — `git clone` + `pip3 install -r requirements.txt` for containerized network lab lifecycle management via ContainerLab API (6 tools: authenticate, list, deploy, inspect, exec, destroy). Supports SR Linux, cEOS, FRR, Cisco IOS-XR/XE/NX-OS, and more.
-37. **Installs SD-WAN MCP** — `git clone` + `pip3 install` deps (fastmcp, requests, python-dotenv) for Cisco SD-WAN vManage read-only monitoring (12 tools: fabric devices, WAN Edge inventory, templates, policies, alarms, BFD, OMP routes, control connections, running config).
+36. **Installs SD-WAN MCP** — `git clone` + `pip3 install` deps (fastmcp, requests, python-dotenv) for Cisco SD-WAN vManage read-only monitoring (12 tools: fabric devices, WAN Edge inventory, templates, policies, alarms, BFD, OMP routes, control connections, running config).
 38. **Installs Grafana MCP** — Validates `uvx` availability for running `mcp-grafana` (Go binary, 75+ tools: dashboards, Prometheus PromQL, Loki LogQL, alerting, incidents, OnCall, annotations, panel rendering). Requires Grafana 9.0+ with service account token.
 39. **Installs Prometheus MCP** — `pip3 install prometheus-mcp-server` for direct Prometheus monitoring (6 tools: instant/range PromQL queries, metric discovery with pagination, metric metadata, scrape target health, system health check). Supports basic auth, bearer tokens, and multi-tenant org IDs.
 40. **Configures Kubeshark MCP** — Checks for `kubectl`; Kubeshark MCP is a remote HTTP endpoint running inside a Kubernetes cluster (6 tools: traffic capture, pcap export, snapshots, KFL filtering, L4 flow stats, TLS decryption). Requires Kubeshark deployed via Helm with `mcp.enabled=true`.
 41. **Installs Protocol MCP** — `pip3 install -r requirements.txt` (scapy, networkx, mcp, fastmcp) for live BGP/OSPF/GRE control-plane participation (10 tools: peer with routers, inject/withdraw routes, query RIB/LSDB, adjust metrics). Protocol speakers from WontYouBeMyNeighbour.
 42. **Protocol Peering Wizard** — Optional interactive configuration: router ID, local AS, BGP peer IP/AS, OSPF areas, GRE tunnels, lab mode. Writes protocol environment variables to `~/.openclaw/.env`. Optionally creates GRE tunnel (requires sudo).
-43. **Deploys skills + workspace files** — Copies 77 skills and 6 MD files to `~/.openclaw/workspace/`
+43. **Deploys skills + workspace files** — Copies 69 skills and 6 MD files to `~/.openclaw/workspace/`
 44. **Verifies installation** — Checks all MCP server scripts + core scripts exist
-45. **Prints summary** — Lists all 36 MCP servers by category and all 77 skills by domain
+45. **Prints summary** — Lists all 32 MCP servers by category and all 69 skills by domain
 
 ---
 
@@ -1527,7 +1470,6 @@ The `%ENV{NETCLAW_PASSWORD}` syntax pulls credentials from environment variables
 Optional (for full feature set):
 - NetBox instance with API token (or Nautobot instance with API token — alternative source of truth)
 - ServiceNow instance with credentials
-- Cisco APIC with credentials (for ACI skills)
 - Cisco ISE with ERS API enabled (for ISE skills)
 - NVD API key (free from https://nvd.nist.gov/developers/request-an-api-key)
 - Cisco Catalyst Center (DNA Center) with API credentials
@@ -1543,10 +1485,8 @@ Optional (for full feature set):
 - AWS account with IAM credentials (`AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY`) for AWS cloud skills
 - graphviz (`apt install graphviz` or `brew install graphviz`) for AWS architecture diagrams
 - OpsMill Infrahub instance + API token (optional — schema-driven source of truth alternative)
-- Itential Automation Platform instance + credentials (optional — network orchestration, compliance, golden config)
 - Google Cloud project with service account or `gcloud` CLI (for GCP Compute, Monitoring, Logging skills)
 - Microsoft 365 tenant with Azure AD app registration (for Graph/Visio/Teams skills)
-- ContainerLab API server with PAM-authenticated Linux user (for containerized network lab management)
 - Cisco SD-WAN vManage instance with API access (for SD-WAN fabric monitoring — read-only)
 - Grafana 9.0+ with service account token (Editor role or granular RBAC) and `uvx` (for Grafana observability — dashboards, Prometheus, Loki, alerting, incidents, OnCall)
 - Prometheus server with HTTP API access (for direct PromQL monitoring — instant/range queries, metric discovery, scrape target health)
@@ -1577,9 +1517,6 @@ Ask NetClaw anything you'd ask a senior network engineer:
 
 "BGP peer 10.1.1.2 is down, help me fix it"
 --> pyats-troubleshoot: parallel state from both peers, 9-item BGP checklist
-
-"Audit the ACI fabric health"
---> aci-fabric-audit: nodes, policies, faults, endpoint learning
 
 "Investigate endpoint 00:11:22:33:44:55"
 --> ise-incident-response: auth history, posture, profile --> human decision point
@@ -1613,18 +1550,6 @@ Ask NetClaw anything you'd ask a senior network engineer:
 
 "Commit R1's running config to the network-configs repo"
 --> github-ops: create branch, commit config file, open PR with change summary
-
-"Show me R1's config from NSO"
---> nso-device-ops: get_device_config("R1"), formatted configuration output
-
-"Are all devices in sync with NSO?"
---> nso-device-ops: check_device_sync for each device, sync_from_device for any out-of-sync
-
-"What services are deployed on NSO?"
---> nso-service-mgmt: get_service_types, get_services for each type, inventory report
-
-"What platform is PE1 running?"
---> nso-device-ops: get_device_platform("PE1") — model, serial, OS version, hardware
 
 "Build me a 4-router BGP lab with 2 ASes"
 --> cml-lab-lifecycle + cml-topology-builder + cml-node-operations: create lab, add 4 IOSv nodes, wire topology, apply BGP configs, start lab
@@ -1774,12 +1699,6 @@ Ask NetClaw anything you'd ask a senior network engineer:
 "Withdraw the blackhole route for 10.99.0.0/16"
 --> servicenow-change-workflow (CR) + protocol-participation: bgp_get_rib(prefix) (verify exists), bgp_withdraw_route(network), bgp_get_rib(prefix) (verify removed), GAIT audit
 
-"Deploy a 2-node SR Linux lab in ContainerLab"
---> clab-lab-management: listLabs (check conflicts), deployLab (topology JSON), inspectLab (verify, get management IPs), execCommand ("show version")
-
-"What ContainerLab labs are running?"
---> clab-lab-management: listLabs, inspectLab per lab for node status and management IPs
-
 "Show me all SD-WAN fabric devices"
 --> sdwan-ops: get_devices — vManage, vSmart, vBond, vEdge status summary
 
@@ -1841,4 +1760,4 @@ See `examples/` for detailed workflow walkthroughs.
 | Mission | Status | Summary |
 |---|---|---|
 | MISSION01 | Complete | Core pyATS agent, 7 skills, Markmap, Draw.io, RFC, NVD CVE, SOUL v1 |
-| MISSION02 | Complete | Full platform — 36 MCP servers, 77 skills (14 pyATS, 9 domain, 3 CatC, 3 M365, 1 GitHub, 1 packet analysis, 5 CML, 1 ContainerLab, 2 NSO, 1 Itential, 1 FMC, 1 SD-WAN, 1 Grafana, 1 Prometheus, 1 Kubeshark, 1 RADKit, 5 Meraki, 2 ThousandEyes, 5 AWS, 3 GCP, 1 UML, 1 protocol participation, 6 utility, 4 Slack), 6 workspace files, SOUL v2 |
+| MISSION02 | Complete | Full platform — 32 MCP servers, 67 skills (14 pyATS, 7 domain, 3 CatC, 3 M365, 1 GitHub, 1 packet analysis, 5 CML, 1 FMC, 1 SD-WAN, 1 Grafana, 1 Prometheus, 1 Kubeshark, 1 RADKit, 5 Meraki, 2 ThousandEyes, 5 AWS, 3 GCP, 1 UML, 1 protocol participation, 6 utility, 4 Slack), 6 workspace files, SOUL v2 |

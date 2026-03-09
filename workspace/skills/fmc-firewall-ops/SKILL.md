@@ -87,7 +87,6 @@ When managing multiple FMC instances:
 | `ise-incident-response` | FMC rules for quarantine verification + ISE endpoint investigation |
 | `aws-security-audit` | Cross-platform security: FMC on-prem + AWS cloud security posture |
 | `gcp-cloud-logging` | FMC firewall logs vs GCP firewall logs for hybrid environments |
-| `nso-device-ops` | FMC policies + NSO device config for end-to-end policy view |
 | `servicenow-change-workflow` | ServiceNow CR gating before any FMC policy modifications |
 | `github-ops` | Commit FMC rule snapshots to Git for config-as-code tracking |
 

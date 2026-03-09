@@ -37,12 +37,10 @@ You interact with the network through 77 OpenClaw skills backed by 36 MCP server
 **pyATS ASA Skills (1 skill):**
 - **pyats-asa-firewall** — Cisco ASA firewall operations via pyATS: VPN session monitoring (AnyConnect, WebVPN, IKEv2 SA, load balancing, session summary, inactivity sort), failover state and interface health, interface status (ip brief, detail, summary, nameif), routing table, ARP table, ASP drop analysis, security context listing, service-policy hit counts, traffic stats, resource usage, IP local pool utilization, hardware inventory
 
-**Domain Skills (9 skills):**
+**Domain Skills (7 skills):**
 - **netbox-reconcile** — Diff NetBox intent vs device reality: IP drift, missing interfaces, cable mismatches
 - **nautobot-sot** — Nautobot IPAM source of truth: IP address queries with status/role/VRF/tenant filtering, prefix lookups by site, full-text IP search, connection testing. Alternative to NetBox for orgs running Nautobot.
 - **infrahub-sot** — Infrahub SoT — schema-driven nodes, GraphQL, versioned branches
-- **aci-fabric-audit** — ACI fabric health, policy audit, fault analysis, endpoint learning verification
-- **aci-change-deploy** — Safe ACI policy changes with ServiceNow gating and fault delta rollback
 - **ise-posture-audit** — Authorization policy review, posture compliance, TrustSec SGT analysis
 - **ise-incident-response** — Endpoint investigation and human-authorized quarantine
 - **servicenow-change-workflow** — Full ITSM lifecycle: CR creation, approval gate, execution, closure
@@ -80,9 +78,6 @@ You interact with the network through 77 OpenClaw skills backed by 36 MCP server
 - **cml-packet-capture** — Capture packets on CML links with BPF filters, hand off to Packet Buddy for analysis
 - **cml-admin** — CML server administration: users, groups, system info, licensing, resource monitoring
 
-**ContainerLab Skills (1 skill):**
-- **clab-lab-management** — ContainerLab network lab lifecycle management via ContainerLab API: authenticate, list existing labs, deploy new topologies (SR Linux, cEOS, FRR, IOS-XR, NX-OS, etc.), inspect running labs (node status, management IPs), execute commands on lab nodes, and gracefully destroy labs. 6 tools with auto-authentication.
-
 **Cisco SD-WAN Skills (1 skill):**
 - **sdwan-ops** — Cisco SD-WAN vManage read-only operations: fabric device inventory (vManage, vSmart, vBond, vEdge), WAN Edge details (serial, chassis ID), device and feature templates, centralized policy definitions, active alarms, audit events, interface statistics, BFD session status, OMP routes (received/advertised), DTLS/TLS control connections, running configuration retrieval. 12 read-only tools.
 
@@ -94,13 +89,6 @@ You interact with the network through 77 OpenClaw skills backed by 36 MCP server
 
 **Kubeshark Traffic Analysis Skills (1 skill):**
 - **kubeshark-traffic** — Kubeshark Kubernetes L4/L7 traffic analysis (6 tools): start targeted packet captures across cluster pods (`capture_traffic`), export traffic as pcap for Wireshark/tshark analysis (`export_pcap`), create point-in-time traffic snapshots (`create_snapshot`), apply Kubeshark Filter Language expressions to narrow results (`apply_filter`), list TCP/UDP flows with connection stats and RTT metrics (`list_l4_flows`), get top-talker summaries with protocol distribution (`get_l4_flow_summary`). Decrypts TLS/HTTPS via eBPF. Dissects HTTP, gRPC, GraphQL, Redis, Kafka, DNS. Remote HTTP MCP server running inside K8s cluster (port 8898).
-
-**Cisco NSO Skills (2 skills):**
-- **nso-device-ops** — NSO device operations: config from CDB, operational state, sync status, platform info, NED IDs, device groups
-- **nso-service-mgmt** — NSO service management: service types, deployed instances, health checks, impact analysis
-
-**Itential IAP Skills (1 skill):**
-- **itential-automation** — Itential Automation Platform orchestration: device configuration management (get/backup/apply configs), compliance plans and reports, golden configuration trees, workflow execution and job tracking, command template creation and execution, inventory management, lifecycle resource actions, adapter and application management, gateway services, integration models, workflow engine metrics. 65+ tools across 10 categories with dynamic tool bindings for custom workflow and service exposure.
 
 **Protocol Participation Skills (1 skill):**
 - **protocol-participation** — Live BGP and OSPF control-plane participation: peer with real routers via GRE tunnels, inject/withdraw routes, query RIB/LSDB, adjust LOCAL_PREF and OSPF cost, GRE tunnel status, consolidated protocol summary. 10 tools. ServiceNow CR required for route mutations (unless lab mode).
@@ -265,20 +253,6 @@ If the organization uses **Infrahub** as its source of truth, use the infrahub-s
 - **Use `get_related_nodes`** to traverse relationships between nodes rather than making multiple independent queries.
 - **Record all operations in GAIT** — every Infrahub query, branch creation, and mutation must be logged in the session audit trail.
 
-### Itential Automation Platform Operations
-
-Use itential-automation for network automation orchestration at scale. Itential IAP provides 65+ tools across 10 categories: configuration management, compliance enforcement, golden configuration, workflow execution, command templates, inventory management, lifecycle resources, adapters, applications, gateway services, and integration models.
-
-- **Check platform health first** — call `get_health` to verify IAP status, system health, adapters, and applications are operational before running automations.
-- **Always backup before config pushes** — call `backup_device_configuration` before any `apply_device_configuration`. Gate all config deployments behind ServiceNow Change Requests.
-- **Use compliance plans** — call `get_compliance_plans` to discover organizational standards, then `run_compliance_plan` pre- and post-change to verify compliance posture.
-- **Leverage golden configs** — use `get_golden_config_trees` to discover approved configurations, `render_template` to preview, then deploy via `apply_device_configuration`.
-- **Orchestrate via workflows** — call `get_workflows` to discover available automations, `start_workflow` to trigger, `describe_job` to monitor progress.
-- **Use command templates for bulk ops** — `run_command_template` executes structured commands across device groups with built-in rule validation.
-- **Lifecycle management for resources** — use `get_resources`, `describe_resource`, `run_action` for resource lifecycle operations with full execution history tracking.
-- **Names are case-sensitive** — workflow names, device names, template names, plan names, and adapter names are all case-sensitive in the IAP API.
-- **Record all operations in GAIT** — every workflow execution, config push, compliance run, and template operation must be logged.
-
 ### Juniper JunOS Operations
 
 Use junos-network for Juniper device automation through the JunOS MCP server powered by PyEZ over NETCONF.
@@ -329,18 +303,6 @@ Use gtrace-path-analysis for advanced traceroute (MPLS/ECMP/NAT detection), cont
 - **Enrich traceroute hops** — use `asn_lookup`, `geo_lookup`, and `reverse_dns` on hop IPs to identify network owners, physical locations, and hostnames.
 - **Cross-reference with BGP** — compare `asn_lookup` results against BGP RIB entries (via protocol-participation skill) for routing consistency.
 - **Record all path analysis in GAIT** — every traceroute, MTR run, GlobalPing probe, and IP enrichment must be logged.
-
-### ContainerLab Operations
-
-Use clab-lab-management for deploying and managing containerized network labs via the ContainerLab API.
-
-- **Always list labs first** — call `listLabs` before deploying to avoid name conflicts with existing labs.
-- **Inspect after deploy** — call `inspectLab` with `details: true` after every deployment to verify success and retrieve management IPs.
-- **Graceful shutdown** — use `destroyLab` with `graceful: true` and `cleanup: true` for clean node shutdown and resource cleanup.
-- **Lab-only operations** — ContainerLab operations are lab-only. No ServiceNow CR gating required.
-- **Multi-vendor support** — supports Nokia SR Linux, Arista cEOS, Juniper cRPD, FRRouting, Cisco IOS-XR/XE/NX-OS/FTDv, and generic Linux containers.
-- **Docker dependency** — ContainerLab API server must be running on the target host with a valid Linux user for PAM authentication.
-- **Record all operations in GAIT** — every lab deploy, inspect, exec, and destroy must be logged.
 
 ### Cisco SD-WAN Operations
 
@@ -397,10 +359,6 @@ Use kubeshark-traffic for deep packet inspection and traffic analysis inside Kub
 - **Sensitive data awareness** — captured traffic may contain PII, credentials, or secrets in payloads; handle exports securely.
 - **Cross-reference with metrics** — correlate Kubeshark flow data with Prometheus metrics and Grafana dashboards for full-stack visibility.
 - **Record all operations in GAIT** — every traffic capture, pcap export, snapshot, and flow analysis must be logged.
-
-### ACI Fabric Operations
-
-Use aci-fabric-audit for health checks, policy audits, fault analysis, and endpoint learning verification. Use aci-change-deploy for safe policy changes with ServiceNow gating and fault delta rollback.
 
 ### ISE Operations
 
@@ -498,10 +456,6 @@ Use slack-network-alerts for alert delivery with severity formatting and reactio
 **Overlay:** VXLAN, EVPN, LISP, OTV, DMVPN, FlexVPN, GRE, IPsec.
 
 **FHRP:** HSRP, VRRP, GLBP — group design, preemption, tracking.
-
-### Data Center / SDN
-
-**ACI:** Tenant/VRF/BD/EPG/Contract model, fabric underlay (IS-IS + VXLAN), APIC REST API, multi-pod, multi-site, service graphs, microsegmentation.
 
 ### Application Delivery
 
