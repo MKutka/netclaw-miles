@@ -38,7 +38,7 @@ clone_or_pull() {
 
 NETCLAW_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MCP_DIR="$NETCLAW_DIR/mcp-servers"
-TOTAL_STEPS=47
+TOTAL_STEPS=44
 
 echo "========================================="
 echo "  NetClaw - CCIE Network Agent"
@@ -167,80 +167,10 @@ pip3 install -r "$PYATS_MCP_DIR/requirements.txt" 2>/dev/null || \
 echo ""
 
 # ═══════════════════════════════════════════
-# Step 6: JunOS MCP (clone + pip install)
+# Step 6: Markmap MCP (clone + npm build)
 # ═══════════════════════════════════════════
 
-log_step "6/$TOTAL_STEPS Installing Juniper JunOS MCP Server..."
-echo "  Source: https://github.com/Juniper/junos-mcp-server"
-echo "  Juniper device automation — CLI execution, config mgmt, Jinja2 templates, batch ops (10 tools)"
-
-JUNOS_MCP_DIR="$MCP_DIR/junos-mcp-server"
-if [ -d "$JUNOS_MCP_DIR" ]; then
-    log_info "JunOS MCP already cloned, pulling latest..."
-    git -C "$JUNOS_MCP_DIR" pull --quiet 2>/dev/null || true
-else
-    git clone https://github.com/Juniper/junos-mcp-server.git "$JUNOS_MCP_DIR" 2>/dev/null
-fi
-
-if [ -d "$JUNOS_MCP_DIR" ]; then
-    PY_MINOR=$(python3 -c 'import sys; print(sys.version_info.minor)' 2>/dev/null || echo "0")
-    if [ "$PY_MINOR" -ge 10 ]; then
-        log_info "Python 3.$PY_MINOR detected (3.10+ required for JunOS MCP)"
-        if [ -f "$JUNOS_MCP_DIR/requirements.txt" ]; then
-            pip3 install -r "$JUNOS_MCP_DIR/requirements.txt" 2>/dev/null || \
-                pip3 install --break-system-packages -r "$JUNOS_MCP_DIR/requirements.txt" 2>/dev/null || \
-                log_warn "JunOS MCP dependencies install failed"
-        fi
-        # Also try pip install . for the entry point
-        cd "$JUNOS_MCP_DIR" && pip3 install . 2>/dev/null || \
-            pip3 install --break-system-packages . 2>/dev/null || true
-        cd "$NETCLAW_DIR"
-        log_info "JunOS MCP installed (stdio transport via PyEZ/NETCONF)"
-    else
-        log_warn "Python 3.10+ required for JunOS MCP (found 3.$PY_MINOR)"
-        log_info "JunOS MCP skipped — upgrade Python or install manually"
-    fi
-else
-    log_warn "JunOS MCP clone failed"
-fi
-
-echo ""
-
-# ═══════════════════════════════════════════
-# Step 7: Arista CloudVision MCP (clone + uv)
-# ═══════════════════════════════════════════
-
-log_step "7/$TOTAL_STEPS Installing Arista CloudVision (CVP) MCP Server..."
-echo "  Source: https://github.com/noredistribution/mcp-cvp-fun"
-echo "  Arista CVP automation — device inventory, events, connectivity monitor, tags (4 tools)"
-
-CVP_MCP_DIR="$MCP_DIR/mcp-cvp-fun"
-if [ -d "$CVP_MCP_DIR" ]; then
-    log_info "CVP MCP already cloned, pulling latest..."
-    git -C "$CVP_MCP_DIR" pull --quiet 2>/dev/null || true
-else
-    git clone https://github.com/noredistribution/mcp-cvp-fun.git "$CVP_MCP_DIR" 2>/dev/null
-fi
-
-if [ -d "$CVP_MCP_DIR" ]; then
-    # CVP MCP uses uv run --with fastmcp at runtime; just ensure uv is available
-    if command -v uv &> /dev/null; then
-        log_info "CVP MCP ready (uv available — deps resolved at runtime via 'uv run --with fastmcp')"
-    else
-        log_warn "CVP MCP cloned but 'uv' not found — install uv for runtime dependency resolution"
-        log_info "  Install uv: curl -LsSf https://astral.sh/uv/install.sh | sh"
-    fi
-else
-    log_warn "CVP MCP clone failed"
-fi
-
-echo ""
-
-# ═══════════════════════════════════════════
-# Step 8: Markmap MCP (clone + npm build)
-# ═══════════════════════════════════════════
-
-log_step "8/$TOTAL_STEPS Installing Markmap MCP Server..."
+log_step "6/$TOTAL_STEPS Installing Markmap MCP Server..."
 echo "  Source: https://github.com/automateyournetwork/markmap_mcp"
 
 MARKMAP_MCP_DIR="$MCP_DIR/markmap_mcp"
@@ -262,7 +192,7 @@ echo ""
 # Step 9: GAIT MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "9/$TOTAL_STEPS Installing GAIT MCP Server..."
+log_step "7/$TOTAL_STEPS Installing GAIT MCP Server..."
 echo "  Source: https://github.com/automateyournetwork/gait_mcp"
 
 GAIT_MCP_DIR="$MCP_DIR/gait_mcp"
@@ -281,7 +211,7 @@ echo ""
 # Step 10: NetBox MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "10/$TOTAL_STEPS Installing NetBox MCP Server..."
+log_step "8/$TOTAL_STEPS Installing NetBox MCP Server..."
 echo "  Source: https://github.com/netboxlabs/netbox-mcp-server"
 
 NETBOX_MCP_DIR="$MCP_DIR/netbox-mcp-server"
@@ -299,7 +229,7 @@ echo ""
 # Step 11: Nautobot MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "11/$TOTAL_STEPS Installing Nautobot MCP Server..."
+log_step "9/$TOTAL_STEPS Installing Nautobot MCP Server..."
 echo "  Source: https://github.com/aiopnet/mcp-nautobot"
 echo "  Nautobot IPAM source of truth — IP addresses, prefixes, VRF/tenant/site filtering (5 tools)"
 
@@ -340,7 +270,7 @@ echo ""
 # Step 12: Infrahub MCP (clone + uv sync)
 # ═══════════════════════════════════════════
 
-log_step "12/$TOTAL_STEPS Installing OpsMill Infrahub MCP Server..."
+log_step "10/$TOTAL_STEPS Installing OpsMill Infrahub MCP Server..."
 echo "  Source: https://github.com/opsmill/infrahub-mcp"
 echo "  Infrahub infrastructure source of truth — schema-driven nodes, GraphQL, versioned branches (10 tools)"
 
@@ -390,7 +320,7 @@ echo ""
 # Step 13: Itential MCP (pip install)
 # ═══════════════════════════════════════════
 
-log_step "13/$TOTAL_STEPS Installing Itential MCP Server..."
+log_step "11/$TOTAL_STEPS Installing Itential MCP Server..."
 echo "  Source: https://github.com/itential/itential-mcp"
 echo "  Itential Automation Platform — config mgmt, compliance, workflows, golden config, lifecycle (65+ tools)"
 
@@ -432,7 +362,7 @@ echo ""
 # Step 14: ServiceNow MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "14/$TOTAL_STEPS Installing ServiceNow MCP Server..."
+log_step "12/$TOTAL_STEPS Installing ServiceNow MCP Server..."
 echo "  Source: https://github.com/echelon-ai-labs/servicenow-mcp"
 
 SERVICENOW_MCP_DIR="$MCP_DIR/servicenow-mcp"
@@ -450,7 +380,7 @@ echo ""
 # Step 15: ACI MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "15/$TOTAL_STEPS Installing Cisco ACI MCP Server..."
+log_step "13/$TOTAL_STEPS Installing Cisco ACI MCP Server..."
 echo "  Source: https://github.com/automateyournetwork/ACI_MCP"
 
 ACI_MCP_DIR="$MCP_DIR/ACI_MCP"
@@ -470,7 +400,7 @@ echo ""
 # Step 16: ISE MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "16/$TOTAL_STEPS Installing Cisco ISE MCP Server..."
+log_step "14/$TOTAL_STEPS Installing Cisco ISE MCP Server..."
 echo "  Source: https://github.com/automateyournetwork/ISE_MCP"
 
 ISE_MCP_DIR="$MCP_DIR/ISE_MCP"
@@ -490,7 +420,7 @@ echo ""
 # Step 17: Wikipedia MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "17/$TOTAL_STEPS Installing Wikipedia MCP Server..."
+log_step "15/$TOTAL_STEPS Installing Wikipedia MCP Server..."
 echo "  Source: https://github.com/automateyournetwork/Wikipedia_MCP"
 
 WIKIPEDIA_MCP_DIR="$MCP_DIR/Wikipedia_MCP"
@@ -510,7 +440,7 @@ echo ""
 # Step 18: NVD CVE MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "18/$TOTAL_STEPS Installing NVD CVE MCP Server..."
+log_step "16/$TOTAL_STEPS Installing NVD CVE MCP Server..."
 echo "  Source: https://github.com/marcoeg/mcp-nvd"
 
 NVD_MCP_DIR="$MCP_DIR/mcp-nvd"
@@ -528,7 +458,7 @@ echo ""
 # Step 19: Subnet Calculator MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "19/$TOTAL_STEPS Installing Subnet Calculator MCP Server..."
+log_step "17/$TOTAL_STEPS Installing Subnet Calculator MCP Server..."
 echo "  Source: https://github.com/automateyournetwork/GeminiCLI_SubnetCalculator_Extension"
 
 SUBNET_MCP_DIR="$MCP_DIR/subnet-calculator-mcp"
@@ -545,30 +475,10 @@ pip3 install pydantic python-dotenv mcp 2>/dev/null || \
 echo ""
 
 # ═══════════════════════════════════════════
-# Step 20: F5 BIG-IP MCP (clone + pip install)
+# Step 18: Catalyst Center MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "20/$TOTAL_STEPS Installing F5 BIG-IP MCP Server..."
-echo "  Source: https://github.com/czirakim/F5.MCP.server"
-
-F5_MCP_DIR="$MCP_DIR/f5-mcp-server"
-clone_or_pull "$F5_MCP_DIR" "https://github.com/czirakim/F5.MCP.server.git"
-
-log_info "Installing F5 dependencies..."
-pip3 install -r "$F5_MCP_DIR/requirements.txt" 2>/dev/null || \
-    pip3 install requests mcp python-dotenv
-
-[ -f "$F5_MCP_DIR/F5MCPserver.py" ] && \
-    log_info "F5 MCP ready: $F5_MCP_DIR/F5MCPserver.py" || \
-    log_error "F5MCPserver.py not found"
-
-echo ""
-
-# ═══════════════════════════════════════════
-# Step 21: Catalyst Center MCP (clone + pip install)
-# ═══════════════════════════════════════════
-
-log_step "21/$TOTAL_STEPS Installing Catalyst Center MCP Server..."
+log_step "18/$TOTAL_STEPS Installing Catalyst Center MCP Server..."
 echo "  Source: https://github.com/richbibby/catalyst-center-mcp"
 
 CATC_MCP_DIR="$MCP_DIR/catalyst-center-mcp"
@@ -588,7 +498,7 @@ echo ""
 # Step 22: Microsoft Graph MCP (npx, no clone)
 # ═══════════════════════════════════════════
 
-log_step "22/$TOTAL_STEPS Caching Microsoft Graph MCP Server..."
+log_step "19/$TOTAL_STEPS Caching Microsoft Graph MCP Server..."
 echo "  Package: @microsoft/microsoft-graph-mcp"
 echo "  Auth: Azure AD app registration (Tenant ID, Client ID, Client Secret)"
 
@@ -606,7 +516,7 @@ echo ""
 # Step 23: npx MCP servers (Draw.io, RFC)
 # ═══════════════════════════════════════════
 
-log_step "23/$TOTAL_STEPS Caching npx-based MCP servers..."
+log_step "20/$TOTAL_STEPS Caching npx-based MCP servers..."
 
 for pkg in "@drawio/mcp" "@mjpitz/mcp-rfc"; do
     log_info "Pre-caching $pkg..."
@@ -619,7 +529,7 @@ echo ""
 # Step 24: GitHub MCP Server
 # ═══════════════════════════════════════════
 
-log_step "24/$TOTAL_STEPS Installing GitHub MCP Server..."
+log_step "21/$TOTAL_STEPS Installing GitHub MCP Server..."
 echo "  Source: https://github.com/github/github-mcp-server"
 echo "  Auth: GitHub Personal Access Token (PAT)"
 
@@ -642,7 +552,7 @@ echo ""
 # Step 25: Packet Buddy MCP Server (pcap analysis)
 # ═══════════════════════════════════════════
 
-log_step "25/$TOTAL_STEPS Installing Packet Buddy MCP Server..."
+log_step "22/$TOTAL_STEPS Installing Packet Buddy MCP Server..."
 echo "  Pcap analysis via tshark — upload pcaps via Slack or disk"
 
 PACKET_BUDDY_MCP_DIR="$MCP_DIR/packet-buddy-mcp"
@@ -678,7 +588,7 @@ echo ""
 # Step 26: Cisco Modeling Labs (CML) MCP Server
 # ═══════════════════════════════════════════
 
-log_step "26/$TOTAL_STEPS Installing Cisco CML MCP Server..."
+log_step "23/$TOTAL_STEPS Installing Cisco CML MCP Server..."
 echo "  Source: https://github.com/xorrkaz/cml-mcp"
 echo "  Manage CML labs via natural language — create, wire, start, stop, capture"
 
@@ -724,7 +634,7 @@ echo ""
 # Step 27: Cisco NSO MCP Server
 # ═══════════════════════════════════════════
 
-log_step "27/$TOTAL_STEPS Installing Cisco NSO MCP Server..."
+log_step "24/$TOTAL_STEPS Installing Cisco NSO MCP Server..."
 echo "  Source: https://github.com/NSO-developer/cisco-nso-mcp-server"
 echo "  Network orchestration via natural language — device config, sync, services"
 
@@ -759,7 +669,7 @@ echo ""
 # Step 28: Cisco FMC MCP Server
 # ═══════════════════════════════════════════
 
-log_step "28/$TOTAL_STEPS Installing Cisco FMC MCP Server..."
+log_step "25/$TOTAL_STEPS Installing Cisco FMC MCP Server..."
 echo "  Source: https://github.com/CiscoDevNet/CiscoFMC-MCP-server-community"
 echo "  Cisco Secure Firewall policy search — access rules, FTD targeting, multi-FMC"
 
@@ -788,7 +698,7 @@ echo ""
 # Step 29: Cisco Meraki Magic MCP Server
 # ═══════════════════════════════════════════
 
-log_step "29/$TOTAL_STEPS Installing Cisco Meraki Magic MCP Server..."
+log_step "26/$TOTAL_STEPS Installing Cisco Meraki Magic MCP Server..."
 echo "  Source: https://github.com/CiscoDevNet/meraki-magic-mcp-community"
 echo "  Cisco Meraki Dashboard — ~804 API endpoints: orgs, networks, devices, wireless, switching, security, cameras"
 
@@ -831,7 +741,7 @@ echo ""
 # Step 30: ThousandEyes Community MCP Server
 # ═══════════════════════════════════════════
 
-log_step "30/$TOTAL_STEPS Installing ThousandEyes Community MCP Server..."
+log_step "27/$TOTAL_STEPS Installing ThousandEyes Community MCP Server..."
 echo "  Source: https://github.com/CiscoDevNet/thousandeyes-mcp-community"
 echo "  ThousandEyes monitoring — tests, agents, path visualization, dashboards (9 read-only tools)"
 
@@ -870,7 +780,7 @@ echo ""
 # Step 31: ThousandEyes Official MCP Server (remote HTTP)
 # ═══════════════════════════════════════════
 
-log_step "31/$TOTAL_STEPS Configuring ThousandEyes Official MCP Server..."
+log_step "28/$TOTAL_STEPS Configuring ThousandEyes Official MCP Server..."
 echo "  Source: https://github.com/CiscoDevNet/ThousandEyes-MCP-Server-official"
 echo "  Remote HTTP endpoint hosted by Cisco — ~20 tools: alerts, outages, BGP, instant tests, endpoint agents"
 echo ""
@@ -896,7 +806,7 @@ echo ""
 # Step 32: Cisco RADKit MCP Server
 # ═══════════════════════════════════════════
 
-log_step "32/$TOTAL_STEPS Installing Cisco RADKit MCP Server..."
+log_step "29/$TOTAL_STEPS Installing Cisco RADKit MCP Server..."
 echo "  Source: https://github.com/CiscoDevNet/radkit-mcp-server-community"
 echo "  Cloud-relayed remote device access — CLI execution, SNMP polling, device inventory (5 tools)"
 
@@ -939,7 +849,7 @@ echo ""
 # Step 33: AWS Cloud MCP Servers (6 servers)
 # ═══════════════════════════════════════════
 
-log_step "33/$TOTAL_STEPS Installing AWS Cloud MCP Servers..."
+log_step "30/$TOTAL_STEPS Installing AWS Cloud MCP Servers..."
 echo "  Source: https://github.com/awslabs/mcp"
 echo "  6 AWS MCP servers for cloud networking, monitoring, security, costs, diagrams"
 
@@ -994,7 +904,7 @@ echo ""
 # Step 34: Google Cloud MCP Servers (4 servers)
 # ═══════════════════════════════════════════
 
-log_step "34/$TOTAL_STEPS Configuring Google Cloud MCP Servers..."
+log_step "31/$TOTAL_STEPS Configuring Google Cloud MCP Servers..."
 echo "  Source: https://docs.cloud.google.com/mcp/supported-products"
 echo "  4 GCP remote MCP servers for compute, monitoring, logging, resource management"
 echo ""
@@ -1036,7 +946,7 @@ echo ""
 # Step 35: UML MCP Server
 # ═══════════════════════════════════════════
 
-log_step "35/$TOTAL_STEPS Installing UML MCP Server..."
+log_step "32/$TOTAL_STEPS Installing UML MCP Server..."
 echo "  Source: https://github.com/antoinebou12/uml-mcp"
 echo "  27+ diagram types via Kroki — class, sequence, network, rack, packet, C4, Mermaid, D2, Graphviz (2 tools)"
 
@@ -1079,7 +989,7 @@ echo ""
 # Step 36: ContainerLab MCP Server (Python)
 # ═══════════════════════════════════════════
 
-log_step "36/$TOTAL_STEPS Installing ContainerLab MCP Server..."
+log_step "33/$TOTAL_STEPS Installing ContainerLab MCP Server..."
 echo "  Source: https://github.com/seanerama/clab-mcp-server"
 echo "  Deploy and manage containerized network labs (SR Linux, cEOS, FRR, etc.)"
 
@@ -1110,7 +1020,7 @@ echo ""
 # Step 37: Cisco SD-WAN MCP Server (vManage)
 # ═══════════════════════════════════════════
 
-log_step "37/$TOTAL_STEPS Installing Cisco SD-WAN MCP Server..."
+log_step "34/$TOTAL_STEPS Installing Cisco SD-WAN MCP Server..."
 echo "  Source: https://github.com/siddhartha2303/cisco-sdwan-mcp"
 echo "  Read-only vManage API — 12 tools for SD-WAN fabric monitoring"
 
@@ -1145,7 +1055,7 @@ echo ""
 # Step 38: Grafana MCP Server (Observability)
 # ═══════════════════════════════════════════
 
-log_step "38/$TOTAL_STEPS Installing Grafana MCP Server..."
+log_step "35/$TOTAL_STEPS Installing Grafana MCP Server..."
 echo "  Source: https://github.com/grafana/mcp-grafana"
 echo "  Grafana observability — dashboards, Prometheus, Loki, alerting, incidents, OnCall (75+ tools)"
 
@@ -1165,7 +1075,7 @@ echo ""
 # Step 39: Prometheus MCP Server (Monitoring)
 # ═══════════════════════════════════════════
 
-log_step "39/$TOTAL_STEPS Installing Prometheus MCP Server..."
+log_step "36/$TOTAL_STEPS Installing Prometheus MCP Server..."
 echo "  Source: https://github.com/pab1it0/prometheus-mcp-server"
 echo "  Prometheus monitoring — PromQL queries, metric discovery, target health (6 tools)"
 
@@ -1190,7 +1100,7 @@ echo ""
 # Step 40: Kubeshark MCP Server (K8s Traffic Analysis)
 # ═══════════════════════════════════════════
 
-log_step "40/$TOTAL_STEPS Configuring Kubeshark MCP Server..."
+log_step "37/$TOTAL_STEPS Configuring Kubeshark MCP Server..."
 echo "  Source: https://github.com/kubeshark/kubeshark"
 echo "  Kubernetes L4/L7 traffic analysis — capture, pcap export, flow analysis, TLS decryption (6 tools)"
 
@@ -1213,7 +1123,7 @@ echo ""
 # Step 41: nmap MCP Server (Network Scanning)
 # ═══════════════════════════════════════════
 
-log_step "41/$TOTAL_STEPS Installing nmap MCP Server..."
+log_step "38/$TOTAL_STEPS Installing nmap MCP Server..."
 echo "  Source: https://github.com/sbmilburn/nmap-mcp"
 echo "  Network scanning — host discovery, port scanning, service/OS detection, vuln scanning (14 tools)"
 
@@ -1262,7 +1172,7 @@ echo ""
 # Step 42: gtrace MCP Server (Path Analysis + IP Enrichment)
 # ═══════════════════════════════════════════
 
-log_step "42/$TOTAL_STEPS Installing gtrace MCP Server..."
+log_step "39/$TOTAL_STEPS Installing gtrace MCP Server..."
 echo "  Source: https://github.com/hervehildenbrand/gtrace"
 echo "  Advanced traceroute (MPLS/ECMP/NAT), MTR, GlobalPing, ASN lookup, geolocation, rDNS (6 tools)"
 
@@ -1343,7 +1253,7 @@ echo ""
 # Step 43: Protocol MCP Server (BGP + OSPF + GRE)
 # ═══════════════════════════════════════════
 
-log_step "43/$TOTAL_STEPS Installing Protocol MCP Server..."
+log_step "40/$TOTAL_STEPS Installing Protocol MCP Server..."
 echo "  Source: WontYouBeMyNeighbour BGP/OSPFv3/GRE modules"
 echo "  Live control-plane participation — BGP peering, OSPF adjacency, GRE tunnels (10 tools)"
 
@@ -1374,7 +1284,7 @@ echo ""
 # Step 44: Protocol Peering Wizard (optional)
 # ═══════════════════════════════════════════
 
-log_step "44/$TOTAL_STEPS Protocol Peering Configuration (optional)..."
+log_step "41/$TOTAL_STEPS Protocol Peering Configuration (optional)..."
 echo ""
 echo "  NetClaw can participate in BGP/OSPF as a real routing peer."
 echo "  This requires a GRE tunnel to a network device and protocol configuration."
@@ -1536,7 +1446,7 @@ echo ""
 # Step 45: Deploy skills and set environment
 # ═══════════════════════════════════════════
 
-log_step "45/$TOTAL_STEPS Deploying skills and configuration..."
+log_step "42/$TOTAL_STEPS Deploying skills and configuration..."
 
 PYATS_SCRIPT="$PYATS_MCP_DIR/pyats_mcp_server.py"
 TESTBED_PATH="$NETCLAW_DIR/testbed/testbed.yaml"
@@ -1607,7 +1517,6 @@ _set_env_var "ISE_MCP_SCRIPT"           "$ISE_MCP_DIR/src/ise_mcp_server/server.
 _set_env_var "WIKIPEDIA_MCP_SCRIPT"     "$WIKIPEDIA_MCP_DIR/main.py"
 _set_env_var "NVD_MCP_SCRIPT"           "$NVD_MCP_DIR/mcp_nvd/main.py"
 _set_env_var "SUBNET_MCP_SCRIPT"        "$SUBNET_MCP_DIR/servers/subnetcalculator_mcp.py"
-_set_env_var "F5_MCP_SCRIPT"            "$F5_MCP_DIR/F5MCPserver.py"
 _set_env_var "CATC_MCP_SCRIPT"          "$CATC_MCP_DIR/catalyst-center-mcp.py"
 _set_env_var "PACKET_BUDDY_MCP_SCRIPT"  "$PACKET_BUDDY_MCP_DIR/server.py"
 _set_env_var "NMAP_MCP_SCRIPT"          "$NMAP_MCP_DIR/server.py"
@@ -1653,7 +1562,7 @@ echo ""
 # Step 46: Verify installation
 # ═══════════════════════════════════════════
 
-log_step "46/$TOTAL_STEPS Verifying installation..."
+log_step "43/$TOTAL_STEPS Verifying installation..."
 
 SERVERS_OK=0
 SERVERS_FAIL=0
@@ -1720,44 +1629,12 @@ else
     log_warn "Itential MCP: NOT INSTALLED (pip3 install itential-mcp)"
 fi
 
-# JunOS MCP is git-cloned with pip install
-if [ -d "$JUNOS_MCP_DIR" ]; then
-    if command -v junos-mcp-server &> /dev/null; then
-        log_info "JunOS MCP: OK (cli entry point)"
-        SERVERS_OK=$((SERVERS_OK + 1))
-    elif [ -f "$JUNOS_MCP_DIR/jmcp.py" ]; then
-        log_info "JunOS MCP: OK (jmcp.py found)"
-        SERVERS_OK=$((SERVERS_OK + 1))
-    else
-        log_info "JunOS MCP: CLONED (server script location may vary)"
-        SERVERS_OK=$((SERVERS_OK + 1))
-    fi
-else
-    log_warn "JunOS MCP: NOT INSTALLED (git clone failed)"
-    SERVERS_FAIL=$((SERVERS_FAIL + 1))
-fi
-
-# Arista CVP MCP is git-cloned, runs via uv
-if [ -d "$CVP_MCP_DIR" ]; then
-    if [ -f "$CVP_MCP_DIR/mcp_server_rest.py" ]; then
-        log_info "Arista CVP MCP: OK (mcp_server_rest.py found)"
-        SERVERS_OK=$((SERVERS_OK + 1))
-    else
-        log_info "Arista CVP MCP: CLONED (server script location may vary)"
-        SERVERS_OK=$((SERVERS_OK + 1))
-    fi
-else
-    log_warn "Arista CVP MCP: NOT INSTALLED (git clone failed)"
-    SERVERS_FAIL=$((SERVERS_FAIL + 1))
-fi
-
 verify_file "ServiceNow MCP" "$SERVICENOW_MCP_DIR/src/servicenow_mcp/cli.py"
 verify_file "ACI MCP" "$ACI_MCP_DIR/aci_mcp/main.py"
 verify_file "ISE MCP" "$ISE_MCP_DIR/src/ise_mcp_server/server.py"
 verify_file "Wikipedia MCP" "$WIKIPEDIA_MCP_DIR/main.py"
 verify_file "NVD CVE MCP" "$NVD_MCP_DIR/mcp_nvd/main.py"
 verify_file "Subnet Calculator MCP" "$SUBNET_MCP_DIR/servers/subnetcalculator_mcp.py"
-verify_file "F5 BIG-IP MCP" "$F5_MCP_DIR/F5MCPserver.py"
 verify_file "Catalyst Center MCP" "$CATC_MCP_DIR/catalyst-center-mcp.py"
 verify_file "Packet Buddy MCP" "$PACKET_BUDDY_MCP_DIR/server.py"
 
@@ -1957,7 +1834,7 @@ echo ""
 # Step 47: Summary
 # ═══════════════════════════════════════════
 
-log_step "47/$TOTAL_STEPS Installation Summary"
+log_step "44/$TOTAL_STEPS Installation Summary"
 echo ""
 echo "========================================="
 echo "  NetClaw Installation Complete"
@@ -1966,14 +1843,11 @@ echo ""
 
 SKILL_COUNT=$(ls -d "$NETCLAW_DIR/workspace/skills/"*/ 2>/dev/null | wc -l)
 
-echo "MCP Servers Installed (39):"
+echo "MCP Servers Installed (36):"
 echo "  ┌─────────────────────────────────────────────────────────────"
 echo "  │ NETWORK DEVICE AUTOMATION:"
 echo "  │   pyATS              Cisco device CLI, Genie parsers"
-echo "  │   F5 BIG-IP          iControl REST API (virtuals, pools, iRules)"
 echo "  │   Catalyst Center    DNA Center / CatC API (devices, clients, sites)"
-echo "  │   Juniper JunOS      PyEZ/NETCONF — CLI, config, templates, facts, batch ops (10 tools)"
-echo "  │   Arista CVP         CloudVision Portal — inventory, events, connectivity monitor, tags (4 tools)"
 echo "  │"
 echo "  │ PROTOCOL PARTICIPATION:"
 echo "  │   Protocol MCP        Live BGP/OSPF peering + GRE tunnels (10 tools)"
@@ -2073,22 +1947,8 @@ echo "  │   pyats-linux-system     Process monitoring, Docker stats, filesyste
 echo "  │   pyats-linux-network    Interfaces (ifconfig), routing (ip route), netstat"
 echo "  │   pyats-linux-vmware     VMware ESXi: VM inventory (vim-cmd), snapshots"
 echo "  │"
-echo "  │ pyATS JunOS Skills:"
-echo "  │   pyats-junos-system     Chassis, hardware, version, NTP, SNMP, logs, firewall, DDoS"
-echo "  │   pyats-junos-interfaces Interfaces, LACP, CoS, LLDP, ARP, BFD, optics diagnostics"
-echo "  │   pyats-junos-routing    OSPF/v3, BGP, routes, MPLS/LDP/RSVP, TED, PFE, ping, traceroute"
-echo "  │"
 echo "  │ pyATS ASA Skills:"
 echo "  │   pyats-asa-firewall     VPN sessions, failover, interfaces, routes, ASP drops, service policies"
-echo "  │"
-echo "  │ pyATS F5 BIG-IP Skills:"
-echo "  │   pyats-f5-ltm           LTM/GTM: virtuals, pools, nodes, monitors, profiles, iRules, wide IPs"
-echo "  │   pyats-f5-platform      Platform: system, networking, HA/CM, auth, analytics, security, APM"
-echo "  │"
-echo "  │ F5 BIG-IP Skills:"
-echo "  │   f5-health-check        Virtual server & pool monitoring"
-echo "  │   f5-config-mgmt         Safe F5 object lifecycle"
-echo "  │   f5-troubleshoot        F5 troubleshooting workflows"
 echo "  │"
 echo "  │ Catalyst Center Skills:"
 echo "  │   catc-inventory         Device inventory & site management"
@@ -2108,12 +1968,6 @@ echo "  │   gait-session-tracking  Mandatory audit trail"
 echo "  │"
 echo "  │ Itential IAP Skills:"
 echo "  │   itential-automation    Config mgmt, compliance, workflows, golden config, lifecycle (65+ tools)"
-echo "  │"
-echo "  │ Juniper JunOS Skills:"
-echo "  │   junos-network          PyEZ/NETCONF — CLI, config mgmt, Jinja2 templates, batch ops (10 tools)"
-echo "  │"
-echo "  │ Arista CloudVision Skills:"
-echo "  │   arista-cvp              CVP — device inventory, events, connectivity monitor, tags (4 tools)"
 echo "  │"
 echo "  │ Microsoft 365 Skills:"
 echo "  │   msgraph-files          OneDrive/SharePoint file operations"

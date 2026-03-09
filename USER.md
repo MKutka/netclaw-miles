@@ -2,23 +2,23 @@
 
 ## About You
 
-- **Name:** (your name here)
+- **Name:** Michael Kutka
 - **Role:** Network Engineer / Architect
-- **Timezone:** (your timezone, e.g., America/New_York)
+- **Timezone:** America/New_York
 
 ## Preferences
 
 - **Communication style:** Technical, concise — include CLI output and protocol details
 - **Report format:** Severity-sorted tables with HEALTHY / WARNING / CRITICAL ratings
-- **Change management:** Always require ServiceNow CR before touching a device
+- **Change management:** Always require approval before making changes to a device
 - **Escalation:** Notify immediately on P1/P2; queue P3/P4 for next business day
 
 ## Your Network
 
-- **Testbed:** Defined in `testbed/testbed.yaml`
-- **Platforms:** (list your platforms, e.g., IOS-XE, NX-OS, IOS-XR, ACI, F5)
-- **Source of Truth:** NetBox (read-write)
-- **ITSM:** ServiceNow
+- **Testbed:** Defined in '.env' as Meraki Organization
+- **Platforms:** Meraki Dashboard and IOS-XE based devices
+- **Source of Truth:** Meraki Dashboard (Read/Write)
+<!-- - **ITSM:** ServiceNow -->
 
 ## Notes
 

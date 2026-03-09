@@ -200,36 +200,6 @@ else
 fi
 echo ""
 
-# --- Juniper JunOS ---
-if yesno "Do you have Juniper JunOS devices? (PyEZ/NETCONF automation)"; then
-    echo ""
-    echo -e "  JunOS MCP provides 10 tools: CLI execution, config management, Jinja2 templates, device facts, batch operations."
-    echo -e "  Devices are defined in a JSON inventory file (not environment variables)."
-    echo ""
-    prompt JUNOS_DEVICES "Path to devices.json inventory file" "devices.json"
-    [ -n "$JUNOS_DEVICES" ] && set_env "JUNOS_DEVICES_FILE" "$JUNOS_DEVICES"
-    ok "Juniper JunOS configured"
-else
-    skip "Juniper JunOS"
-fi
-echo ""
-
-# --- Arista CloudVision ---
-if yesno "Do you have an Arista CloudVision Portal (CVP) instance? (Arista network management)"; then
-    echo ""
-    echo -e "  CVP MCP provides 4 tools: device inventory, events, connectivity monitoring, tag management."
-    echo -e "  Generate a service account token from: ${BOLD}CVP → Settings → Service Accounts${NC}"
-    echo ""
-    prompt CVP_HOST "CloudVision hostname (e.g., www.arista.io)" ""
-    prompt_secret CVP_TOKEN_VAL "CVP Service Account Token"
-    [ -n "$CVP_HOST" ] && set_env "CVP" "$CVP_HOST"
-    [ -n "$CVP_TOKEN_VAL" ] && set_env "CVPTOKEN" "$CVP_TOKEN_VAL"
-    ok "Arista CloudVision configured"
-else
-    skip "Arista CloudVision"
-fi
-echo ""
-
 # --- ServiceNow ---
 if yesno "Do you have a ServiceNow instance?"; then
     echo ""
@@ -272,25 +242,6 @@ if yesno "Do you have Cisco ISE with ERS API enabled?"; then
     ok "Cisco ISE configured"
 else
     skip "Cisco ISE"
-fi
-echo ""
-
-# --- F5 BIG-IP ---
-if yesno "Do you have an F5 BIG-IP load balancer?"; then
-    echo ""
-    prompt F5_IP "F5 Management IP/Hostname" ""
-    prompt F5_USER "F5 Username" "admin"
-    prompt_secret F5_PASS "F5 Password"
-    if [ -n "$F5_IP" ]; then
-        set_env "F5_IP_ADDRESS" "$F5_IP"
-    fi
-    if [ -n "$F5_USER" ] && [ -n "$F5_PASS" ]; then
-        F5_AUTH=$(echo -n "${F5_USER}:${F5_PASS}" | base64)
-        set_env "F5_AUTH_STRING" "$F5_AUTH"
-        ok "F5 BIG-IP configured (auth string base64-encoded)"
-    fi
-else
-    skip "F5 BIG-IP"
 fi
 echo ""
 
@@ -622,12 +573,9 @@ grep -q "^NETBOX_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "NetBox" || skip "NetBo
 grep -q "^NAUTOBOT_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "Nautobot" || skip "Nautobot"
 grep -q "^INFRAHUB_ADDRESS=" "$OPENCLAW_ENV" 2>/dev/null && ok "OpsMill Infrahub" || skip "OpsMill Infrahub"
 grep -q "^ITENTIAL_MCP_PLATFORM_HOST=" "$OPENCLAW_ENV" 2>/dev/null && ok "Itential IAP" || skip "Itential IAP"
-grep -q "^JUNOS_DEVICES_FILE=" "$OPENCLAW_ENV" 2>/dev/null && ok "Juniper JunOS" || skip "Juniper JunOS"
-grep -q "^CVP=" "$OPENCLAW_ENV" 2>/dev/null && ok "Arista CloudVision" || skip "Arista CloudVision"
 grep -q "^SERVICENOW_INSTANCE_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "ServiceNow" || skip "ServiceNow"
 grep -q "^APIC_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco ACI" || skip "Cisco ACI"
 grep -q "^ISE_BASE=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco ISE" || skip "Cisco ISE"
-grep -q "^F5_IP_ADDRESS=" "$OPENCLAW_ENV" 2>/dev/null && ok "F5 BIG-IP" || skip "F5 BIG-IP"
 grep -q "^CCC_HOST=" "$OPENCLAW_ENV" 2>/dev/null && ok "Catalyst Center" || skip "Catalyst Center"
 grep -q "^NVD_API_KEY=" "$OPENCLAW_ENV" 2>/dev/null && ok "NVD CVE Scanning" || skip "NVD CVE Scanning"
 grep -q "^AZURE_TENANT_ID=" "$OPENCLAW_ENV" 2>/dev/null && ok "Microsoft Graph (Office 365)" || skip "Microsoft Graph (Office 365)"
