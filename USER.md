@@ -2,9 +2,9 @@
 
 ## About You
 
-- **Name:** Michael Kutka
+- **Name:** (your name here)
 - **Role:** Network Engineer / Architect
-- **Timezone:** America/New_York
+- **Timezone:** (your timezone, e.g., America/New_York)
 
 ## Preferences
 
