@@ -4,7 +4,7 @@
 
 # Netclaw-Miles
 
-Netclaw-Miles is a CCIE-level AI network engineering coworker forked from [NetClaw](https://github.com/automateyournetwork/netclaw). It keeps the same stack (OpenClaw, Claude, 54 skills, 28 MCP server backends) with a sharp focus on **enterprise networking and Cisco Meraki**. Built on [OpenClaw](https://github.com/openclaw/openclaw) with Anthropic Claude for complete network automation: ITSM gating, immutable audit trails, packet capture analysis, Cisco CML labs, Cisco SD-WAN vManage monitoring, Grafana observability, Cisco Meraki Dashboard management, Cisco ThousandEyes, Cisco Secure Firewall policy auditing, UML diagram generation, nmap and gtrace, and Slack-native operations.
+Netclaw-Miles is a CCIE-level AI network engineering coworker forked from [NetClaw](https://github.com/automateyournetwork/netclaw). It keeps the same stack (OpenClaw, Claude, 54 skills, 28 MCP server backends) with a sharp focus on **enterprise networking and Cisco Meraki**. Built on [OpenClaw](https://github.com/openclaw/openclaw) with Anthropic Claude for complete network automation: ITSM gating, immutable audit trails, packet capture analysis, Cisco CML labs, Cisco SD-WAN vManage monitoring, Grafana observability, Cisco Meraki Dashboard management, Cisco ThousandEyes, Cisco Secure Firewall policy auditing, UML diagram generation, nmap and gtrace, Slack and Webex channel operations.
 
 ## About Netclaw-Miles
 
@@ -51,6 +51,50 @@ Reconfigure anytime:
 - `openclaw configure` — AI provider, gateway, channels
 - `./scripts/setup.sh` — network platform credentials
 
+### Enabling Webex
+
+To use Webex alongside Slack, install the [@jimiford/webex](https://github.com/JimiHFord/openclaw-webex) OpenClaw channel plugin and configure it.
+
+1. **Install the plugin** (where OpenClaw can load it):
+   ```bash
+   npm install @jimiford/webex
+   ```
+   If OpenClaw is installed globally, ensure the package is available to the gateway (e.g. install in the same Node environment or add to `plugins.load.paths` as `node_modules/@jimiford/webex`).
+
+2. **Configure OpenClaw** with the Webex channel. In your OpenClaw config (e.g. under `~/.openclaw/` or as specified by `openclaw configure`), add:
+   ```json
+   {
+     "channels": {
+       "webex": {
+         "enabled": true,
+         "token": "YOUR_BOT_TOKEN",
+         "webhookUrl": "https://your-domain.com/webhooks/webex",
+         "webhookSecret": "YOUR_STRONG_RANDOM_SECRET",
+         "dmPolicy": "allowlisted",
+         "allowFrom": ["your-webex-person-id", "your-email@example.com"]
+       }
+     },
+     "plugins": {
+       "load": {
+         "paths": ["node_modules/@jimiford/webex"]
+       }
+     }
+   }
+   ```
+   Use **allowlisted** in production; list person IDs or emails in `allowFrom`. Never commit tokens or secrets.
+
+3. **Environment variables** — Put secrets in `~/.openclaw/.env` (do not commit):
+   ```
+   WEBEX_BOT_TOKEN=your_bot_access_token
+   WEBHOOK_URL=https://your-domain.com/webhooks/webex
+   WEBHOOK_SECRET=your_webhook_secret
+   ```
+   Generate a webhook secret with `openssl rand -hex 32`.
+
+4. **Webhook URL** must be publicly reachable over HTTPS. For local testing use a tunnel (e.g. ngrok). After starting the gateway, register webhooks with Webex (the plugin may do this automatically; see [openclaw-webex](https://github.com/JimiHFord/openclaw-webex) docs).
+
+5. **Netclaw-Miles** does not implement the Webex transport; it relies on OpenClaw's plugin system. The workspace skills (`webex-network-alerts`, `webex-report-delivery`, `webex-incident-workflow`, `webex-user-context`) define how the agent formats and behaves in Webex. See [TOOLS.md](TOOLS.md) for Webex spaces and [docs/webex-checklist.md](docs/webex-checklist.md) for a verification checklist.
+
 ---
 
 ## What It Does
@@ -89,7 +133,7 @@ NetClaw is an autonomous network engineering agent powered by Claude that can:
 ## Architecture
 
 ```
-Human (Slack / WebChat) --> NetClaw (CCIE Agent on OpenClaw)
+Human (Slack / Webex / WebChat) --> NetClaw (CCIE Agent on OpenClaw)
                                 |
                                 |-- DEVICE AUTOMATION:
                                 |     MCP: pyATS           --> IOS-XE / NX-OS / IOS-XR devices
@@ -337,6 +381,15 @@ All MCP servers communicate via stdio (JSON-RPC 2.0) through `scripts/mcp-call.p
 | **slack-report-delivery** | Rich Slack formatting for health checks, security audits, topology maps, reconciliation results, change reports |
 | **slack-incident-workflow** | Full incident lifecycle in Slack: declaration, triage, automated investigation, status updates, resolution, post-incident review |
 | **slack-user-context** | User-aware interactions: DND-respecting escalation, timezone-aware scheduling, role-based response depth, shift handoff summaries |
+
+### Webex Integration Skills (4)
+
+| Skill | Purpose |
+|-------|---------|
+| **webex-network-alerts** | Severity-formatted alert delivery in Webex spaces, reply-thread follow-up, fleet summaries |
+| **webex-report-delivery** | Markdown reports for health checks, security audits, topology maps, reconciliation, change reports |
+| **webex-incident-workflow** | Incident lifecycle in Webex: declaration, triage, investigation, status updates, resolution, PIR |
+| **webex-user-context** | Allowlist-aware escalation, space-based routing, role-based response depth |
 
 ---
 
@@ -817,7 +870,11 @@ netclaw/
 │       ├── slack-network-alerts/         # Slack alert delivery
 │       ├── slack-report-delivery/        # Slack report formatting
 │       ├── slack-incident-workflow/      # Slack incident lifecycle
-│       └── slack-user-context/           # Slack user-aware routing
+│       ├── slack-user-context/           # Slack user-aware routing
+│       ├── webex-network-alerts/         # Webex alert delivery
+│       ├── webex-report-delivery/        # Webex report formatting
+│       ├── webex-incident-workflow/      # Webex incident lifecycle
+│       └── webex-user-context/           # Webex allowlist-aware routing
 ├── testbed/
 │   └── testbed.yaml                      # pyATS testbed (your network devices)
 ├── config/

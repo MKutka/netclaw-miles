@@ -40,6 +40,35 @@ All credentials are in `~/.openclaw/.env`. Never put credentials in skill files 
 - #incidents          → Active incident threads
 ```
 
+## Webex Integration
+
+Webex is powered by the [@jimiford/webex](https://github.com/JimiHFord/openclaw-webex) OpenClaw channel plugin. Use it alongside or instead of Slack for alerts, reports, and incident workflows.
+
+### Spaces (map to Slack channel semantics)
+
+| Webex Space | Purpose | Alert/Report Types |
+|-------------|---------|--------------------|
+| NetClaw Alerts | P1/P2 critical alerts | Device down, security critical |
+| NetClaw Reports | Scheduled health reports, audit results | Health checks, audits, reconciliation |
+| NetClaw General | General queries, P3/P4 notifications | Ad-hoc queries, help |
+| NetClaw Incidents | Active incident threads | Incident lifecycle, status, PIR |
+
+### Configuration
+
+- **Credentials and secrets** live in `~/.openclaw/.env`. Never put them in skills or this file.
+- **Recommended DM policy:** `allowlisted` — only users in `allowFrom` (person IDs or emails) can DM the bot. Use `deny` for room-only; avoid `allow` in production.
+- **Expected env vars (reference only):**
+  - `WEBEX_BOT_TOKEN` — Bot access token from Webex Developer Portal
+  - `WEBHOOK_URL` — Public HTTPS URL for webhooks (e.g. `https://your-domain.com/webhooks/webex`)
+  - `WEBHOOK_SECRET` — Secret for webhook signature verification (e.g. `openssl rand -hex 32`)
+
+### Operational patterns
+
+- Keep P1/P2 to the alerts space; use threads (replies) for follow-up.
+- Post concise top-level messages; put diagnostics and long output in replies.
+- Reference GAIT session IDs and ServiceNow INC/CR in messages the same way as for Slack.
+- See workspace skills `webex-network-alerts`, `webex-report-delivery`, `webex-incident-workflow`, and `webex-user-context` for formatting and behavior.
+
 ## Microsoft Teams Integration
 
 ```
