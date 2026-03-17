@@ -1359,6 +1359,32 @@ for mdfile in SOUL.md AGENTS.md IDENTITY.md USER.md TOOLS.md HEARTBEAT.md; do
 done
 log_info "Deployed workspace files to $OPENCLAW_DIR/workspace/"
 
+# Inject systemPrompt into openclaw.json so Miles has identity on first boot
+# This runs regardless of whether onboard or the fallback config created the file
+OPENCLAW_JSON="$OPENCLAW_DIR/openclaw.json"
+SOUL_PATH="$OPENCLAW_DIR/workspace/SOUL.md"
+if [ -f "$OPENCLAW_JSON" ] && command -v python3 &> /dev/null; then
+    python3 - <<PYEOF
+import json, sys
+
+config_path = "$OPENCLAW_JSON"
+soul_path = "$SOUL_PATH"
+
+with open(config_path, 'r') as f:
+    config = json.load(f)
+
+config.setdefault('agents', {}).setdefault('defaults', {})
+config['agents']['defaults']['systemPrompt'] = soul_path
+
+with open(config_path, 'w') as f:
+    json.dump(config, f, indent=2)
+    f.write('\n')
+PYEOF
+    log_info "systemPrompt set → $SOUL_PATH"
+else
+    log_warn "Could not update openclaw.json — set systemPrompt manually to $SOUL_PATH"
+fi
+
 # Symlink testbed into workspace so OpenClaw can find it
 mkdir -p "$OPENCLAW_DIR/workspace/testbed"
 ln -sf "$NETCLAW_DIR/testbed/testbed.yaml" "$OPENCLAW_DIR/workspace/testbed/testbed.yaml"

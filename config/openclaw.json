@@ -5,6 +5,7 @@
   "agents": {
     "defaults": {
       "workspace": "~/.openclaw/workspace",
+      "systemPrompt": "~/.openclaw/workspace/SOUL.md",
       "model": {
         "primary": "anthropic/claude-opus-4-6",
         "fallbacks": [

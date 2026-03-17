@@ -450,8 +450,7 @@ prompt USER_ROLE "Your role (e.g., Network Engineer, NetOps Lead)" "Network Engi
 prompt USER_TZ "Your timezone (e.g., US/Eastern, UTC)" ""
 
 USER_MD="$OPENCLAW_DIR/workspace/USER.md"
-if [ -n "$USER_NAME" ] || [ -n "$USER_ROLE" ] || [ -n "$USER_TZ" ]; then
-    cat > "$USER_MD" << USEREOF
+cat > "$USER_MD" << USEREOF
 # About My Human
 
 ## Identity
@@ -466,10 +465,133 @@ if [ -n "$USER_NAME" ] || [ -n "$USER_ROLE" ] || [ -n "$USER_TZ" ]; then
 - Escalation: alert me for P1/P2, queue P3/P4 for next business day
 
 ## Network
-- Edit TOOLS.md with your device IPs, sites, and Slack channels
-- Edit testbed/testbed.yaml with your pyATS device inventory
+- Devices are defined in testbed/testbed.yaml and Meraki Dashboard
+- See TOOLS.md for site details and channel mappings
 USEREOF
-    ok "USER.md personalized"
+ok "USER.md written → $USER_MD"
+
+# ═══════════════════════════════════════════
+# Step 4: Your Environment (TOOLS.md)
+# ═══════════════════════════════════════════
+
+section "Step 4: Your Environment"
+
+echo "  Tell Miles about your sites, Slack channels, and any local notes."
+echo "  This goes into TOOLS.md (never leaves your machine)."
+echo ""
+
+prompt SITE_A_NAME  "Primary site name"        "HQ"
+prompt SITE_A_DESC  "Primary site description"  "Primary data center"
+prompt SITE_B_NAME  "DR / secondary site name"  "DR"
+prompt SITE_B_DESC  "DR site description"       "DR site"
+prompt LAB_NAME     "Lab site name"             "Lab"
+prompt BASTION_HOST "Jump host / bastion (leave blank if none)" ""
+prompt CONSOLE_SRV  "Console server (leave blank if none)" ""
+prompt TOOLS_NOTES  "Any extra notes for Miles (ISP circuits, maintenance windows, etc.)" ""
+
+TOOLS_MD="$OPENCLAW_DIR/workspace/TOOLS.md"
+cat > "$TOOLS_MD" << TOOLSEOF
+# TOOLS.md — Local Infrastructure Notes
+
+Skills define *how* tools work. This file is for *your* specifics — the environment details that are unique to your deployment.
+
+## Network Devices
+
+Devices are defined in \`testbed/testbed.yaml\`. Update that file with your SSH-accessible Cisco devices.
+
+## Platform Credentials
+
+All credentials are in \`~/.openclaw/.env\`. Never put credentials in skill files or this document.
+
+## Slack Integration
+
+\`\`\`
+### Channels
+- #netclaw-alerts     → P1/P2 critical alerts
+- #netclaw-reports    → Scheduled health reports, audit results
+- #netclaw-general    → General queries, P3/P4 notifications
+- #incidents          → Active incident threads
+\`\`\`
+
+## Microsoft Teams Integration
+
+\`\`\`
+### Teams Channels (if using Microsoft Graph for Teams delivery)
+- #netclaw-alerts     → P1/P2 critical alerts, CVE exposure
+- #netclaw-reports    → Health reports, audit results, reconciliation
+- #netclaw-changes    → Change request updates, completion notices
+- #network-general    → P3/P4 notifications, topology updates
+\`\`\`
+
+## SSH Access
+
+\`\`\`
+### Jump Hosts / Bastion
+- ${BASTION_HOST:-none configured}
+
+### Console Servers
+- ${CONSOLE_SRV:-none configured}
+\`\`\`
+
+## Site Information
+
+\`\`\`
+### Sites
+- ${SITE_A_NAME} → ${SITE_A_DESC}
+- ${SITE_B_NAME} → ${SITE_B_DESC}
+- ${LAB_NAME}    → Non-production test environment (relaxed change control)
+\`\`\`
+
+## Notes
+
+${TOOLS_NOTES:-Add whatever helps NetClaw do its job — device nicknames, maintenance windows, ISP circuit IDs, TAC case numbers, anything environment-specific.}
+TOOLSEOF
+ok "TOOLS.md written → $TOOLS_MD"
+
+# ═══════════════════════════════════════════
+# Deploy identity files to workspace
+# ═══════════════════════════════════════════
+
+section "Deploying Miles Identity"
+
+echo "  Copying identity files to ~/.openclaw/workspace/ so Miles"
+echo "  knows who he is on first boot."
+echo ""
+
+mkdir -p "$OPENCLAW_DIR/workspace"
+
+for mdfile in SOUL.md AGENTS.md IDENTITY.md HEARTBEAT.md PEERINGEXAMPLE.md; do
+    if [ -f "$NETCLAW_DIR/$mdfile" ]; then
+        cp "$NETCLAW_DIR/$mdfile" "$OPENCLAW_DIR/workspace/$mdfile"
+        ok "$mdfile"
+    else
+        skip "$mdfile (not found in repo)"
+    fi
+done
+
+# Ensure systemPrompt is set in openclaw.json
+OPENCLAW_JSON="$OPENCLAW_DIR/openclaw.json"
+SOUL_PATH="$OPENCLAW_DIR/workspace/SOUL.md"
+if [ -f "$OPENCLAW_JSON" ] && command -v python3 &> /dev/null; then
+    python3 - <<PYEOF
+import json
+
+config_path = "$OPENCLAW_JSON"
+soul_path = "$SOUL_PATH"
+
+with open(config_path, 'r') as f:
+    config = json.load(f)
+
+config.setdefault('agents', {}).setdefault('defaults', {})
+config['agents']['defaults']['systemPrompt'] = soul_path
+
+with open(config_path, 'w') as f:
+    json.dump(config, f, indent=2)
+    f.write('\n')
+PYEOF
+    ok "openclaw.json → systemPrompt set to SOUL.md"
+else
+    skip "openclaw.json not found — run install.sh first"
 fi
 
 # ═══════════════════════════════════════════
