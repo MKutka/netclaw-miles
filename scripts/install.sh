@@ -687,7 +687,7 @@ GTRACE_BIN=""
 
 # Option A: Try go install if Go 1.24+ is available
 if command -v go &> /dev/null; then
-    GO_VER=$(go version 2>/dev/null | grep -oP '\d+\.\d+' | head -1)
+    GO_VER=$(go version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -1)
     GO_MAJOR=$(echo "$GO_VER" | cut -d. -f1)
     GO_MINOR=$(echo "$GO_VER" | cut -d. -f2)
     if [ "$GO_MAJOR" -ge 1 ] && [ "$GO_MINOR" -ge 24 ] 2>/dev/null; then
@@ -717,16 +717,24 @@ if [ -z "$GTRACE_BIN" ] || ! command -v gtrace &> /dev/null; then
         GTRACE_ARCH="arm64"
     fi
 
-    # Get latest release tag
-    GTRACE_LATEST=$(curl -sL "https://api.github.com/repos/hervehildenbrand/gtrace/releases/latest" 2>/dev/null | grep -oP '"tag_name":\s*"\K[^"]+' || echo "v0.9.7")
+    # Get latest release tag (portable: no grep -P for macOS BSD grep)
+    GTRACE_LATEST=$(curl -sL "https://api.github.com/repos/hervehildenbrand/gtrace/releases/latest" 2>/dev/null | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)
+    [ -z "$GTRACE_LATEST" ] && GTRACE_LATEST="v0.9.7"
     GTRACE_VER="${GTRACE_LATEST#v}"
     GTRACE_URL="https://github.com/hervehildenbrand/gtrace/releases/download/${GTRACE_LATEST}/gtrace_${GTRACE_VER}_${GTRACE_OS}_${GTRACE_ARCH}.tar.gz"
 
     GTRACE_TMP=$(mktemp -d)
     if curl -sL "$GTRACE_URL" -o "$GTRACE_TMP/gtrace.tar.gz" 2>/dev/null; then
         tar xzf "$GTRACE_TMP/gtrace.tar.gz" -C "$GTRACE_TMP" 2>/dev/null
-        if [ -f "$GTRACE_TMP/gtrace" ]; then
-            sudo mv "$GTRACE_TMP/gtrace" /usr/local/bin/gtrace
+        # Binary may be at root or in a single subdir (e.g. gtrace_0.10.1_darwin_arm64/gtrace)
+        GTRACE_EXTRACTED=""
+        [ -f "$GTRACE_TMP/gtrace" ] && GTRACE_EXTRACTED="$GTRACE_TMP/gtrace"
+        if [ -z "$GTRACE_EXTRACTED" ]; then
+            GTRACE_EXTRACTED=$(find "$GTRACE_TMP" -maxdepth 2 -type f -name gtrace 2>/dev/null | head -1)
+        fi
+        if [ -n "$GTRACE_EXTRACTED" ] && [ -f "$GTRACE_EXTRACTED" ]; then
+            sudo mkdir -p /usr/local/bin
+            sudo mv "$GTRACE_EXTRACTED" /usr/local/bin/gtrace
             sudo chmod +x /usr/local/bin/gtrace
             GTRACE_BIN="/usr/local/bin/gtrace"
             log_info "gtrace $GTRACE_VER installed from GitHub release ($GTRACE_OS/$GTRACE_ARCH)"
