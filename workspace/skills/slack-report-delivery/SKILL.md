@@ -25,7 +25,7 @@ Format and deliver comprehensive network engineering reports through Slack. This
 
 ### 1. Health Check Report
 
-Post after running the pyats-health-check skill:
+Post after running Meraki health/diagnostics (meraki-monitoring, meraki-network-ops device status):
 
 ```
 :stethoscope: *Device Health Report — R1*
@@ -53,7 +53,7 @@ Thread the detailed per-section output as follow-up messages.
 
 ### 2. Security Audit Report
 
-Post after running the pyats-security skill:
+Post after running Meraki security appliance audit or security review (meraki-security-appliance):
 
 ```
 :shield: *Security Audit Report — R1*
@@ -82,7 +82,7 @@ _Detailed findings with remediation commands in thread →_
 
 ### 3. Topology Discovery Report
 
-Post after running the pyats-topology skill:
+Post after running Meraki network/device discovery (meraki-network-ops) or topology discovery:
 
 ```
 :world_map: *Topology Discovery — 2024-02-21*
@@ -134,7 +134,7 @@ Post after running the netbox-reconcile skill:
 
 ### 5. Change Report
 
-Post after running the pyats-config-mgmt skill:
+Post after running a Meraki config change (Dashboard API or action batches) with servicenow-change-workflow:
 
 ```
 :pencil: *Change Report — R1*

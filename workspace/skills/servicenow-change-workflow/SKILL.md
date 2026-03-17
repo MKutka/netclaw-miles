@@ -1,6 +1,6 @@
 ---
 name: servicenow-change-workflow
-description: "Full ITSM-gated change lifecycle - CR creation, pre-change incident validation, approval gate, execution via pyats-config-mgmt, post-change verification, and closure with GAIT audit trail"
+description: "Full ITSM-gated change lifecycle - CR creation, pre-change incident validation, approval gate, execution via Meraki Dashboard API or action batches, post-change verification, and closure with GAIT audit trail"
 user-invocable: true
 metadata:
   { "openclaw": { "requires": { "bins": ["python3"], "env": ["SERVICENOW_MCP_SCRIPT"] } } }
@@ -145,7 +145,7 @@ python3 $MCP_CALL "python3 -u $SERVICENOW_MCP_SCRIPT" approve_change '{"change_i
 
 ### Phase 3: Execution
 
-This phase uses the **pyats-config-mgmt** skill for the actual device work. The ServiceNow CR gates entry to this phase.
+This phase uses the **Meraki Dashboard API** (via meraki-network-ops, meraki-switch-ops, meraki-wireless-ops, or meraki-security-appliance) or **action batches** for the actual configuration work. The ServiceNow CR gates entry to this phase.
 
 #### 3A: Update CR to Implementation
 
@@ -153,80 +153,29 @@ This phase uses the **pyats-config-mgmt** skill for the actual device work. The 
 python3 $MCP_CALL "python3 -u $SERVICENOW_MCP_SCRIPT" update_change_request '{"change_id":"CHG0000123","work_notes":"Beginning implementation. Capturing pre-change baseline."}'
 ```
 
-#### 3B: Pre-Change Baseline (via pyats-config-mgmt)
+#### 3B: Pre-Change Baseline (via Meraki MCP)
 
-Follow the pyats-config-mgmt skill Phase 1 procedure:
+Capture current state before changes. Use Meraki MCP to record device status, network config, or relevant Dashboard state (e.g. device status, uplink, firewall rules, SSID config). Record baseline in CR work notes.
 
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_show_running_config '{"device_name":"R1"}'
-```
+#### 3C: Apply Configuration (via Meraki Dashboard API)
 
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"R1","command":"show ip ospf neighbor"}'
-```
-
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"R1","command":"show ip route"}'
-```
-
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_ping_from_network_device '{"device_name":"R1","command":"ping 8.8.8.8 repeat 10"}'
-```
-
-Update the CR with baseline status:
-
-```bash
-python3 $MCP_CALL "python3 -u $SERVICENOW_MCP_SCRIPT" update_change_request '{"change_id":"CHG0000123","work_notes":"Pre-change baseline captured: Running config saved, 2 OSPF neighbors FULL, 47 routes, 100% connectivity to 8.8.8.8 (23ms RTT)."}'
-```
-
-#### 3C: Apply Configuration (via pyats-config-mgmt)
-
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_configure_device '{"device_name":"R1","config_commands":["interface Loopback99","ip address 99.99.99.99 255.255.255.255","description OSPF-RID-Migration","no shutdown"]}'
-```
+Apply the approved change using Meraki Dashboard API calls or an action batch (meraki-network-ops skill). Examples: update network settings, device config, SSID, firewall rules, switch port config. Use the appropriate Meraki MCP tools for the change type.
 
 Update the CR:
 
 ```bash
-python3 $MCP_CALL "python3 -u $SERVICENOW_MCP_SCRIPT" update_change_request '{"change_id":"CHG0000123","work_notes":"Configuration applied to R1. Proceeding to post-change verification."}'
+python3 $MCP_CALL "python3 -u $SERVICENOW_MCP_SCRIPT" update_change_request '{"change_id":"CHG0000123","work_notes":"Configuration applied via Meraki Dashboard. Proceeding to post-change verification."}'
 ```
 
 ### Phase 4: Post-Change Verification
 
-#### 4A: Verify the Change (via pyats-config-mgmt)
+#### 4A: Verify the Change (via Meraki MCP)
 
-Follow the pyats-config-mgmt skill Phase 4 procedure:
-
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_show_running_config '{"device_name":"R1"}'
-```
-
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"R1","command":"show ip ospf neighbor"}'
-```
-
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"R1","command":"show ip route"}'
-```
-
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_ping_from_network_device '{"device_name":"R1","command":"ping 8.8.8.8 repeat 10"}'
-```
-
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_show_logging '{"device_name":"R1"}'
-```
+Re-query device status, config, or Dashboard state using the same Meraki MCP tools. Use meraki-monitoring for live diagnostics (ping, cable test) if needed. Check Meraki config change audit (who changed what, when) to confirm the change was applied.
 
 #### 4B: Verification Decision
 
-**Compare pre-change vs post-change state:**
-
-| Check | Pre-Change | Post-Change | Expected Delta |
-|-------|-----------|-------------|----------------|
-| OSPF neighbors | 2 FULL | 2 FULL | No change |
-| Route count | 47 | 48 | +1 connected (99.99.99.99/32) |
-| Connectivity | 100% | 100% | No change |
-| New errors in log | - | %LINEPROTO-5-UPDOWN Lo99 up | Expected |
+**Compare pre-change vs post-change state.** Confirm the intended config is in place and device/network behavior matches expectations.
 
 **Decision gate:**
 - All checks PASS -> Proceed to Phase 5 (Close)
@@ -234,11 +183,7 @@ PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_
 
 #### 4C: Rollback (If Verification Fails)
 
-If post-change verification fails, roll back immediately:
-
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_configure_device '{"device_name":"R1","config_commands":["no interface Loopback99"]}'
-```
+If post-change verification fails, roll back immediately using the Meraki Dashboard API (reverse the change via the same Meraki MCP tools or a new action batch). Restore to the baseline state captured in 3B.
 
 Update the CR with rollback details:
 
@@ -326,9 +271,8 @@ python3 $MCP_CALL "python3 -u $SERVICENOW_MCP_SCRIPT" submit_change_for_approval
 
 | Skill | Integration Point |
 |-------|------------------|
-| **pyats-config-mgmt** | Phase 3 (Execution) and Phase 4 (Verification) - actual device configuration |
-| **pyats-health-check** | Pre-change device health validation before entering Phase 3 |
-| **netbox-reconcile** | Post-change: verify NetBox source of truth reflects the change (or ticket the delta) |
+| **meraki-network-ops** / **meraki-switch-ops** / **meraki-wireless-ops** / **meraki-security-appliance** | Phase 3 (Execution) - Meraki config via Dashboard API or action batches |
+| **meraki-monitoring** | Phase 4 (Verification) - device status, live diagnostics, config change audit |
 | **GAIT** | Every phase records to the audit trail - CR creation, approval, execution, verification, closure |
 | **markmap-viz** | Generate change summary mind map for complex multi-device changes |
 

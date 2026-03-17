@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Netclaw-Miles — Codebase Map</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* ── Toolbar ── */
+  #toolbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 52px;
+    background: #161b22;
+    border-bottom: 1px solid #30363d;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    z-index: 100;
+  }
+  #toolbar h1 { font-size: 15px; font-weight: 600; color: #58a6ff; margin-right: 8px; }
+  #toolbar h1 span { color: #7ee787; }
+
+  .tb-sep { width: 1px; height: 28px; background: #30363d; }
+
+  .tb-btn {
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid #30363d;
+    background: #21262d;
+    color: #c9d1d9;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .tb-btn:hover { background: #30363d; border-color: #58a6ff; color: #58a6ff; }
+  .tb-btn.active { background: #1f6feb; border-color: #58a6ff; color: #fff; }
+
+  #search-box {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid #30363d;
+    background: #0d1117;
+    color: #c9d1d9;
+    font-size: 12px;
+    width: 180px;
+    outline: none;
+  }
+  #search-box:focus { border-color: #58a6ff; }
+  #search-box::placeholder { color: #484f58; }
+
+  .layer-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .layer-toggle input[type=checkbox] { accent-color: #58a6ff; cursor: pointer; }
+
+  #match-count { font-size: 11px; color: #8b949e; min-width: 70px; }
+
+  /* ── Canvas ── */
+  #canvas-wrap {
+    position: fixed;
+    top: 52px; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
+    cursor: grab;
+  }
+  #canvas-wrap.dragging { cursor: grabbing; }
+  #canvas {
+    position: absolute;
+    transform-origin: 0 0;
+  }
+
+  /* ── Legend ── */
+  #legend {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 11px;
+    z-index: 50;
+  }
+  #legend h3 { font-size: 11px; color: #8b949e; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .5px; }
+  .leg-item { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .leg-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Info panel ── */
+  #info-panel {
+    position: fixed;
+    top: 68px;
+    right: 16px;
+    width: 300px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 12px;
+    z-index: 50;
+    display: none;
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
+  }
+  #info-panel.visible { display: block; }
+  #info-panel h2 { font-size: 14px; margin-bottom: 8px; }
+  #info-panel .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    margin: 2px;
+  }
+  #info-panel .meta { color: #8b949e; margin: 6px 0 4px; font-size: 11px; }
+  #info-panel ul { padding-left: 16px; }
+  #info-panel ul li { margin: 3px 0; line-height: 1.4; }
+  #info-panel .close-btn {
+    float: right;
+    cursor: pointer;
+    color: #8b949e;
+    font-size: 16px;
+    line-height: 1;
+    margin-top: -2px;
+  }
+  #info-panel .close-btn:hover { color: #c9d1d9; }
+  #info-panel .path { font-family: monospace; font-size: 11px; color: #79c0ff; word-break: break-all; }
+  #info-panel hr { border: none; border-top: 1px solid #30363d; margin: 10px 0; }
+
+  /* ── Zoom controls ── */
+  #zoom-ctrl {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 50;
+  }
+  .zoom-btn {
+    width: 32px; height: 32px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #c9d1d9;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .zoom-btn:hover { background: #21262d; border-color: #58a6ff; color: #58a6ff; }
+
+  /* ── Nodes ── */
+  .node {
+    position: absolute;
+    border-radius: 8px;
+    border: 1.5px solid;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s, opacity .2s;
+    user-select: none;
+    min-width: 120px;
+  }
+  .node:hover { transform: scale(1.04); box-shadow: 0 0 0 2px rgba(88,166,255,.5), 0 4px 20px rgba(0,0,0,.6); }
+  .node.selected { box-shadow: 0 0 0 2px #58a6ff, 0 4px 20px rgba(0,0,0,.6); }
+  .node.dimmed { opacity: .2; }
+  .node.highlighted { opacity: 1; }
+
+  .node-title { font-weight: 600; font-size: 12px; white-space: nowrap; }
+  .node-sub   { font-size: 10px; color: #8b949e; margin-top: 3px; white-space: nowrap; }
+  .node-badge {
+    position: absolute;
+    top: -7px; right: 8px;
+    background: #1f6feb;
+    border-radius: 8px;
+    font-size: 9px;
+    padding: 1px 6px;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  /* Layer colours */
+  .layer-user    { background: #0d2033; border-color: #388bfd; }
+  .layer-agent   { background: #0a1f0a; border-color: #3fb950; }
+  .layer-skills  { background: #1a1230; border-color: #bc8cff; }
+  .layer-mcp     { background: #1f1a0a; border-color: #d29922; }
+  .layer-platform{ background: #1f0a0a; border-color: #f85149; }
+  .layer-infra   { background: #0a1a1f; border-color: #39c5cf; }
+
+  /* ── SVG edges ── */
+  #svg-layer {
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+    overflow: visible;
+  }
+  .edge { fill: none; stroke-width: 1.5; opacity: .45; }
+  .edge.flow { stroke-dasharray: 8 4; animation: dash 1.2s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -48; } }
+</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div id="toolbar">
+  <h1>Netclaw-<span>Miles</span></h1>
+  <div class="tb-sep"></div>
+  <button class="tb-btn active" onclick="setView('all')">All Layers</button>
+  <button class="tb-btn" onclick="setView('agent')">Agent Core</button>
+  <button class="tb-btn" onclick="setView('mcp')">MCP Servers</button>
+  <button class="tb-btn" onclick="setView('skills')">Skills</button>
+  <button class="tb-btn" onclick="setView('platforms')">Platforms</button>
+  <div class="tb-sep"></div>
+  <input id="search-box" type="text" placeholder="Search nodes…" oninput="doSearch(this.value)">
+  <span id="match-count"></span>
+  <div class="tb-sep"></div>
+  <label class="layer-toggle"><input type="checkbox" checked onchange="toggleLayer('user',this.checked)"> <span style="color:#388bfd">● User</span></label>
+  <label class="layer-toggle"><input type="checkbox" checked onchange="toggleLayer('agent',this.checked)"> <span style="color:#3fb950">● Agent</span></label>
+  <label class="layer-toggle"><input type="checkbox" checked onchange="toggleLayer('skills',this.checked)"> <span style="color:#bc8cff">● Skills</span></label>
+  <label class="layer-toggle"><input type="checkbox" checked onchange="toggleLayer('mcp',this.checked)"> <span style="color:#d29922">● MCP</span></label>
+  <label class="layer-toggle"><input type="checkbox" checked onchange="toggleLayer('platform',this.checked)"> <span style="color:#f85149">● Platforms</span></label>
+  <label class="layer-toggle"><input type="checkbox" checked onchange="toggleLayer('infra',this.checked)"> <span style="color:#39c5cf">● Infra</span></label>
+</div>
+
+<!-- Info panel -->
+<div id="info-panel">
+  <span class="close-btn" onclick="closeInfo()">×</span>
+  <div id="info-content"></div>
+</div>
+
+<!-- Zoom -->
+<div id="zoom-ctrl">
+  <div class="zoom-btn" onclick="zoom(1.2)">+</div>
+  <div class="zoom-btn" onclick="zoom(0.8)">−</div>
+  <div class="zoom-btn" onclick="resetView()" style="font-size:12px;">⌂</div>
+</div>
+
+<!-- Legend -->
+<div id="legend">
+  <h3>Layers</h3>
+  <div class="leg-item"><div class="leg-dot" style="background:#388bfd"></div> User / Input</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#3fb950"></div> Agent Core</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#bc8cff"></div> Skills (77)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#d29922"></div> MCP Servers (32+)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#f85149"></div> Network Platforms</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#39c5cf"></div> Infrastructure</div>
+</div>
+
+<!-- Canvas -->
+<div id="canvas-wrap">
+  <div id="canvas">
+    <svg id="svg-layer"></svg>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────
+
+const NODES = [
+
+  // ── USER LAYER ──
+  { id:'user-cli',   layer:'user',   x:80,   y:300, title:'CLI / Terminal',     sub:'openclaw chat --new',  badge:null,
+    info:{ path:'Terminal', desc:'Primary user interface. The user runs openclaw chat --new in one terminal and openclaw gateway in another.', links:['openclaw-framework'], files:[] }},
+  { id:'user-slack', layer:'user',   x:80,   y:420, title:'Slack',              sub:'Channel integration',  badge:null,
+    info:{ path:'~/.openclaw/.env → SLACK_*', desc:'Optional Slack channel. Miles sends alerts, reports, and incident notifications. User can send commands via Slack.', links:['openclaw-framework'], files:[] }},
+  { id:'user-teams', layer:'user',   x:80,   y:540, title:'MS Teams',           sub:'Microsoft Graph',      badge:null,
+    info:{ path:'~/.openclaw/.env → AZURE_*', desc:'Optional Microsoft Teams integration via MS Graph MCP. Supports file sharing, channel messages, and Visio diagram delivery.', links:['mcp-msgraph'], files:[] }},
+
+  // ── AGENT CORE ──
+  { id:'openclaw-framework', layer:'agent', x:340, y:300, title:'OpenClaw',        sub:'Node.js framework',    badge:'v*',
+    info:{ path:'npm install -g openclaw', desc:'The agent orchestration framework. Runs the gateway (REST+WS), loads skills from workspace, routes messages to Claude, and manages MCP server connections.', links:['claude-ai','workspace'], files:['config/openclaw.json','~/.openclaw/openclaw.json'] }},
+  { id:'claude-ai',   layer:'agent', x:340, y:420, title:'Claude AI',          sub:'claude-opus-4-6',      badge:'Anthropic',
+    info:{ path:'anthropic/claude-opus-4-6 (fallback: sonnet-4-6)', desc:'The AI brain. Receives user messages + skill definitions + MCP tool results. System prompt is SOUL.md — Miles\' CCIE identity, rules, and skill index.', links:['soul-md','workspace'], files:['config/openclaw.json'] }},
+  { id:'soul-md',     layer:'agent', x:340, y:180, title:'SOUL.md',            sub:'Identity + rules',     badge:'systemPrompt',
+    info:{ path:'~/.openclaw/workspace/SOUL.md', desc:'Miles\' system prompt. Defines CCIE identity, 77-skill index, operational rules (no destructive commands, ServiceNow CR gating, GAIT mandatory), and startup protocol.', links:['openclaw-framework','user-md','tools-md'], files:['SOUL.md','~/.openclaw/workspace/SOUL.md'] }},
+  { id:'user-md',     layer:'agent', x:200, y:120, title:'USER.md',            sub:'Human profile',        badge:null,
+    info:{ path:'~/.openclaw/workspace/USER.md', desc:'User identity file. Written by setup.sh — captures name, role, timezone, preferences, and escalation rules. Read by Miles at session start.', links:['soul-md'], files:['USER.md','scripts/setup.sh'] }},
+  { id:'tools-md',    layer:'agent', x:480, y:120, title:'TOOLS.md',           sub:'Infra map',            badge:null,
+    info:{ path:'~/.openclaw/workspace/TOOLS.md', desc:'Environment-specific notes: sites, bastion hosts, console servers, Slack channels, free-form notes. Written by setup.sh Step 4.', links:['soul-md'], files:['TOOLS.md','scripts/setup.sh'] }},
+  { id:'workspace',   layer:'agent', x:600, y:300, title:'Workspace',          sub:'~/.openclaw/workspace',badge:'Skills',
+    info:{ path:'~/.openclaw/workspace/', desc:'OpenClaw workspace directory. Contains all 77 skill SKILL.md files, identity files, and testbed symlink. Deployed by install.sh step 38.', links:['skills-device','skills-meraki','skills-cloud','skills-observe','skills-util'], files:['workspace/skills/','scripts/install.sh'] }},
+  { id:'gait-md',     layer:'agent', x:340, y:540, title:'GAIT',               sub:'Git audit trail',      badge:'Mandatory',
+    info:{ path:'mcp-servers/gait_mcp/gait_mcp.py', desc:'MANDATORY for every session. Records every tool call, config change, and decision to a Git branch. Provides full audit trail. gait_start_session → gait_record_turn → gait_log.', links:['mcp-gait'], files:['scripts/gait-stdio.py'] }},
+  { id:'env-file',    layer:'infra', x:600, y:180, title:'.env',               sub:'~/.openclaw/.env',     badge:'Secrets',
+    info:{ path:'~/.openclaw/.env', desc:'All credentials. Written by setup.sh. Never committed to git. Contains API keys for 30+ platforms: Meraki, NetBox, ServiceNow, ISE, AWS, GCP, ThousandEyes, etc.', links:[], files:['.env.example','scripts/setup.sh'] }},
+
+  // ── INSTALL INFRA ──
+  { id:'install-sh',  layer:'infra', x:100, y:640, title:'install.sh',         sub:'27-step installer',   badge:null,
+    info:{ path:'scripts/install.sh', desc:'Full installer. Checks prerequisites, installs OpenClaw globally, runs openclaw onboard, clones/builds all 32+ MCP servers, deploys skills and identity files to ~/.openclaw/workspace/, injects systemPrompt into openclaw.json.', links:['workspace','env-file'], files:['scripts/install.sh'] }},
+  { id:'setup-sh',    layer:'infra', x:100, y:740, title:'setup.sh',           sub:'Credentials + identity',badge:null,
+    info:{ path:'scripts/setup.sh', desc:'Platform credential setup + identity personalization. Configures 15+ platforms (Meraki, NetBox, ISE, etc.), writes personalized USER.md and TOOLS.md, deploys all identity files to workspace, re-injects systemPrompt.', links:['user-md','tools-md','env-file'], files:['scripts/setup.sh'] }},
+
+  // ── SKILL GROUPS ──
+  { id:'skills-meraki', layer:'skills', x:880, y:80, title:'Meraki (5 skills)', sub:'~804 API endpoints',   badge:'Primary',
+    info:{ path:'workspace/skills/meraki-*', desc:'5 Meraki skills: network-ops, wireless-ops, switch-ops, security-appliance, monitoring. ~804 API endpoints via Meraki Magic MCP. SSID config, RF profiles, port config, VLANs, firewall rules, VPN, diagnostics.', links:['mcp-meraki'], files:['workspace/skills/meraki-network-ops/','workspace/skills/meraki-wireless-ops/','workspace/skills/meraki-switch-ops/'] }},
+  { id:'skills-sot',    layer:'skills', x:880, y:200, title:'Source of Truth',   sub:'4 skills',            badge:null,
+    info:{ path:'workspace/skills/netbox-*, nautobot-*, infrahub-*, gait-*', desc:'NetBox reconciliation (IP drift, cable mismatches), Nautobot IPAM queries, Infrahub schema-driven SoT with GraphQL and branches, GAIT session tracking.', links:['mcp-netbox','mcp-nautobot','mcp-infrahub','mcp-gait'], files:[] }},
+  { id:'skills-cloud',  layer:'skills', x:880, y:320, title:'Cloud (8 skills)',  sub:'AWS + GCP',           badge:null,
+    info:{ path:'workspace/skills/aws-*, gcp-*', desc:'5 AWS skills: VPC networking, CloudWatch monitoring, IAM security audit, cost ops, architecture diagrams. 3 GCP skills: Compute Engine, Cloud Monitoring, Cloud Logging.', links:['mcp-aws','mcp-gcp'], files:[] }},
+  { id:'skills-observe',layer:'skills', x:880, y:440, title:'Observability',     sub:'3 skills',            badge:null,
+    info:{ path:'workspace/skills/grafana-*, prometheus-*, kubeshark-*', desc:'Grafana dashboards and alerting, Prometheus metric queries and alerting rules, Kubeshark live Kubernetes traffic analysis.', links:['mcp-grafana','mcp-prometheus','mcp-kubeshark'], files:[] }},
+  { id:'skills-proto',  layer:'skills', x:880, y:560, title:'Protocol',          sub:'BGP/OSPF/GRE',        badge:'Live',
+    info:{ path:'workspace/skills/protocol-participation/', desc:'Live BGP/OSPF/GRE participation via real TUN interfaces. Not simulation — actual control-plane peering. Uses custom protocol-mcp with Scapy. Supports FRR lab testbed and ngrok mesh peering.', links:['mcp-protocol'], files:['mcp-servers/protocol-mcp/','lab/frr-testbed/'] }},
+  { id:'skills-util',   layer:'skills', x:880, y:660, title:'Utility (20+)',    sub:'Scan, diagram, ITSM…',  badge:null,
+    info:{ path:'workspace/skills/nmap-*, gtrace-*, servicenow-*, slack-*, drawio-*, uml-*, nvd-*, rfc-*, packet-*, ise-*, catc-*, cml-*, sdwan-*, te-*, msgraph-*', desc:'nmap scanning (3), gtrace path analysis (2), ServiceNow ITSM, Slack (4), MS Graph (3), GitHub, Packet Buddy pcap, ISE (2), Catalyst Center (3), CML (5), SD-WAN, ThousandEyes (2), Draw.io, UML/Kroki, NVD CVE, RFC lookup, subnet calculator, Wikipedia.', links:['mcp-misc'], files:[] }},
+
+  // ── MCP SERVERS ──
+  { id:'mcp-meraki',   layer:'mcp', x:1160, y:80,  title:'Meraki Magic MCP',  sub:'~804 endpoints',      badge:'Local',
+    info:{ path:'mcp-servers/meraki-magic-mcp-community/', desc:'Community Meraki MCP with ~804 API endpoints. Covers the full Meraki Dashboard API: networks, devices, clients, SSIDs, switchports, firewall rules, VPN, content filtering, camera analytics, action batches.', links:['platform-meraki'], files:[] }},
+  { id:'mcp-gait',     layer:'mcp', x:1160, y:300, title:'GAIT MCP',          sub:'Audit trail',         badge:'Local',
+    info:{ path:'mcp-servers/gait_mcp/gait_mcp.py (via scripts/gait-stdio.py)', desc:'Git Audit Intelligence Trail. Every tool call and decision is committed to a git branch. Provides immutable audit history for compliance and change tracking.', links:['platform-git'], files:['scripts/gait-stdio.py'] }},
+  { id:'mcp-netbox',   layer:'mcp', x:1160, y:380, title:'NetBox MCP',        sub:'IPAM / DCIM',         badge:'Local',
+    info:{ path:'mcp-servers/netbox-mcp-server/', desc:'NetBox IPAM/DCIM integration. IP addresses, prefixes, devices, interfaces, cables, VLANs, racks. Read-write — Miles can update NetBox when discovering IP drift or cable mismatches.', links:['platform-sot'], files:[] }},
+  { id:'mcp-nautobot', layer:'mcp', x:1160, y:460, title:'Nautobot MCP',      sub:'Alt SoT',             badge:'Local',
+    info:{ path:'mcp-servers/mcp-nautobot-server/', desc:'Nautobot IPAM source of truth. IP queries with status/role/VRF/tenant filtering, prefix lookups by site, connection testing. Alternative to NetBox.', links:['platform-sot'], files:[] }},
+  { id:'mcp-infrahub', layer:'mcp', x:1160, y:540, title:'Infrahub MCP',      sub:'Schema SoT',          badge:'Local',
+    info:{ path:'mcp-servers/infrahub-mcp/', desc:'OpsMill Infrahub — schema-driven infrastructure source of truth. 10 tools: nodes, schemas, GraphQL queries, versioned branches. Most flexible SoT option.', links:['platform-sot'], files:[] }},
+  { id:'mcp-aws',      layer:'mcp', x:1160, y:620, title:'AWS MCPs (×6)',     sub:'Cloud networking',    badge:'Local',
+    info:{ path:'mcp-servers/aws-*', desc:'6 AWS MCP servers: VPC & Transit Gateway, CloudWatch monitoring, IAM security, Cost Explorer, CloudTrail audit, architecture diagram generation.', links:['platform-cloud'], files:[] }},
+  { id:'mcp-gcp',      layer:'mcp', x:1160, y:700, title:'GCP MCPs (×4)',     sub:'Cloud ops',           badge:'Remote',
+    info:{ path:'mcp-servers/gcp-*', desc:'4 GCP MCP servers (remote HTTP, hosted by Google): Compute Engine, Cloud Monitoring, Cloud Logging, networking ops.', links:['platform-cloud'], files:[] }},
+  { id:'mcp-protocol', layer:'mcp', x:1160, y:780, title:'Protocol MCP',      sub:'BGP/OSPF/GRE',        badge:'Local',
+    info:{ path:'mcp-servers/protocol-mcp/server.py', desc:'Custom MCP for live BGP/OSPF participation. Uses Scapy + FastMCP. Real TUN device on Linux, macOS utun via ctypes. 10 tools: bgp_get_peers, bgp_inject_route, bgp_withdraw_route, ospf_get_neighbors, ospf_get_lsdb, gre_tunnel_status, etc. Note: OSPF SPF calculation incomplete (TODO).', links:['platform-cisco'], files:['mcp-servers/protocol-mcp/'] }},
+  { id:'mcp-misc',     layer:'mcp', x:1160, y:900, title:'Other MCPs (19+)',  sub:'ITSM, scan, diag…',   badge:'Mixed',
+    info:{ path:'mcp-servers/', desc:'ServiceNow (ITSM), ISE (identity/posture), Catalyst Center, CML (network labs), SD-WAN vManage, ThousandEyes (×2), Grafana, Prometheus, Kubeshark, nmap, gtrace, Packet Buddy, Markmap, Draw.io, UML/Kroki, NVD CVE, RFC lookup, Slack, MS Graph, GitHub.', links:['platform-cisco','platform-cloud'], files:[] }},
+  { id:'mcp-grafana',  layer:'mcp', x:1160, y:460, title:'Grafana MCP',       sub:'Observability',       badge:'Local',
+    info:{ path:'mcp-servers/grafana_mcp/', desc:'Grafana dashboard integration — query metrics, manage alerts, explore data sources.', links:['platform-observe'], files:[] }},
+  { id:'mcp-prometheus',layer:'mcp',x:1160, y:540, title:'Prometheus MCP',    sub:'Metrics',             badge:'Local',
+    info:{ path:'mcp-servers/prometheus_mcp/', desc:'Prometheus metric queries and alerting rule management.', links:['platform-observe'], files:[] }},
+  { id:'mcp-kubeshark',layer:'mcp', x:1160, y:620, title:'Kubeshark MCP',     sub:'K8s traffic',         badge:'Local',
+    info:{ path:'mcp-servers/kubeshark_mcp/', desc:'Live Kubernetes traffic analysis via Kubeshark.', links:['platform-observe'], files:[] }},
+
+  // ── PLATFORMS ──
+  { id:'platform-cisco',  layer:'platform', x:1440, y:140, title:'Cisco (CML / CatC / SD-WAN)', sub:'Labs, DNA-C, vManage', badge:null,
+    info:{ path:'CML, Catalyst Center, SD-WAN vManage', desc:'CML lab nodes, Catalyst Center, SD-WAN vEdge/vManage. Device inventory for day-to-day ops is in Meraki Dashboard (no pyATS testbed).', links:[], files:[] }},
+  { id:'platform-meraki', layer:'platform', x:1440, y:260, title:'Meraki Dashboard',  sub:'dashboard.meraki.com', badge:'Primary',
+    info:{ path:'MERAKI_API_KEY + MERAKI_ORG_ID in ~/.openclaw/.env', desc:'Cisco Meraki cloud-managed networking platform. ~804 API endpoints. Covers MX security appliances, MS switches, MR wireless, MV cameras, MT sensors. The primary platform for Netclaw-Miles.', links:[], files:[] }},
+  { id:'platform-sot',    layer:'platform', x:1440, y:380, title:'Source of Truth',   sub:'NetBox / Nautobot / Infrahub', badge:null,
+    info:{ path:'NETBOX_URL, NAUTOBOT_URL, or INFRAHUB_ADDRESS in .env', desc:'Infrastructure source of truth. Miles reads and writes these to reconcile intent vs reality. Detects IP drift, interface mismatches, cable errors.', links:[], files:[] }},
+  { id:'platform-itsm',   layer:'platform', x:1440, y:480, title:'ServiceNow',        sub:'Change management',   badge:'Required',
+    info:{ path:'SERVICENOW_INSTANCE_URL in ~/.openclaw/.env', desc:'MANDATORY for production changes (unless NETCLAW_LAB_MODE=true). Miles creates a CR before any config change, gates on approval, and closes on completion.', links:[], files:[] }},
+  { id:'platform-cloud',  layer:'platform', x:1440, y:580, title:'AWS / GCP',         sub:'Cloud networking',    badge:null,
+    info:{ path:'AWS_ACCESS_KEY_ID, GCP_PROJECT_ID in .env', desc:'Cloud networking platforms. AWS: VPC, Transit Gateway, CloudWatch, IAM, CloudTrail, Cost Explorer. GCP: Compute Engine, Cloud Monitoring, Cloud Logging.', links:[], files:[] }},
+  { id:'platform-observe',layer:'platform', x:1440, y:680, title:'Observability Stack',sub:'Grafana/Prometheus/K8s',badge:null,
+    info:{ path:'GRAFANA_URL, PROMETHEUS_URL, KUBESHARK_MCP_URL in .env', desc:'Monitoring and observability. Grafana dashboards, Prometheus metrics, Kubeshark live Kubernetes packet capture.', links:[], files:[] }},
+  { id:'platform-git',    layer:'platform', x:1440, y:780, title:'Git (GAIT)',        sub:'Audit trail storage', badge:null,
+    info:{ path:'git repo (local or GitHub)', desc:'Every GAIT session commits to a git branch. Provides tamper-evident audit trail for all changes and decisions made by Miles.', links:[], files:[] }},
+  { id:'platform-comms',  layer:'platform', x:1440, y:880, title:'Slack / Teams',     sub:'Notifications',       badge:null,
+    info:{ path:'SLACK_BOT_TOKEN, AZURE_* in .env', desc:'Communication platforms. Miles sends alerts to #netclaw-alerts, reports to #netclaw-reports, incident updates to #incidents. Teams via MS Graph for organizations using Microsoft 365.', links:[], files:[] }},
+
+];
+
+// ─────────────────────────────────────────
+// EDGES (simplified — key flows only)
+// ─────────────────────────────────────────
+const EDGES = [
+  // User → Agent
+  {from:'user-cli',    to:'openclaw-framework', color:'#388bfd', flow:true},
+  {from:'user-slack',  to:'openclaw-framework', color:'#388bfd', flow:false},
+  {from:'user-teams',  to:'mcp-misc',           color:'#388bfd', flow:false},
+
+  // Agent core
+  {from:'openclaw-framework', to:'claude-ai',     color:'#3fb950', flow:true},
+  {from:'soul-md',             to:'claude-ai',     color:'#7ee787', flow:false},
+  {from:'user-md',             to:'soul-md',       color:'#c3e6cb', flow:false},
+  {from:'tools-md',            to:'soul-md',       color:'#c3e6cb', flow:false},
+  {from:'openclaw-framework', to:'workspace',     color:'#3fb950', flow:false},
+  {from:'claude-ai',           to:'gait-md',       color:'#3fb950', flow:false},
+
+  // Agent → Skills
+  {from:'workspace',   to:'skills-meraki',  color:'#bc8cff', flow:false},
+  {from:'workspace',   to:'skills-sot',     color:'#bc8cff', flow:false},
+  {from:'workspace',   to:'skills-cloud',   color:'#bc8cff', flow:false},
+  {from:'workspace',   to:'skills-observe', color:'#bc8cff', flow:false},
+  {from:'workspace',   to:'skills-proto',   color:'#bc8cff', flow:false},
+  {from:'workspace',   to:'skills-util',    color:'#bc8cff', flow:false},
+
+  // Skills → MCP
+  {from:'skills-meraki',  to:'mcp-meraki',    color:'#d29922', flow:true},
+  {from:'skills-sot',     to:'mcp-netbox',    color:'#d29922', flow:false},
+  {from:'skills-sot',     to:'mcp-nautobot',  color:'#d29922', flow:false},
+  {from:'skills-sot',     to:'mcp-infrahub',  color:'#d29922', flow:false},
+  {from:'skills-sot',     to:'mcp-gait',      color:'#d29922', flow:false},
+  {from:'skills-cloud',   to:'mcp-aws',       color:'#d29922', flow:false},
+  {from:'skills-cloud',   to:'mcp-gcp',       color:'#d29922', flow:false},
+  {from:'skills-observe', to:'mcp-misc',      color:'#d29922', flow:false},
+  {from:'skills-proto',   to:'mcp-protocol',  color:'#d29922', flow:true},
+  {from:'skills-util',    to:'mcp-misc',      color:'#d29922', flow:false},
+  {from:'gait-md',        to:'mcp-gait',      color:'#f0883e', flow:true},
+
+  // MCP → Platforms
+  {from:'mcp-meraki',    to:'platform-meraki',  color:'#f85149', flow:true},
+  {from:'mcp-netbox',    to:'platform-sot',     color:'#f85149', flow:false},
+  {from:'mcp-nautobot',  to:'platform-sot',     color:'#f85149', flow:false},
+  {from:'mcp-infrahub',  to:'platform-sot',     color:'#f85149', flow:false},
+  {from:'mcp-gait',      to:'platform-git',     color:'#f85149', flow:false},
+  {from:'mcp-aws',       to:'platform-cloud',   color:'#f85149', flow:false},
+  {from:'mcp-gcp',       to:'platform-cloud',   color:'#f85149', flow:false},
+  {from:'mcp-protocol',  to:'platform-cisco',   color:'#f85149', flow:true},
+  {from:'mcp-misc',      to:'platform-itsm',    color:'#f85149', flow:false},
+  {from:'mcp-misc',      to:'platform-comms',   color:'#f85149', flow:false},
+  {from:'mcp-misc',      to:'platform-cisco',   color:'#f85149', flow:false},
+
+  // Install flow
+  {from:'install-sh', to:'workspace',  color:'#39c5cf', flow:false},
+  {from:'install-sh', to:'env-file',   color:'#39c5cf', flow:false},
+  {from:'setup-sh',   to:'user-md',    color:'#39c5cf', flow:false},
+  {from:'setup-sh',   to:'tools-md',   color:'#39c5cf', flow:false},
+  {from:'setup-sh',   to:'env-file',   color:'#39c5cf', flow:false},
+];
+
+// ─────────────────────────────────────────
+// LAYOUT ADJUSTMENTS — remove duplicate mcp nodes shown above
+// We rendered grafana/prometheus/kubeshark as part of mcp-misc visually
+// Just hide them from the node list
+// ─────────────────────────────────────────
+const VISIBLE_NODES = NODES.filter(n => !['mcp-grafana','mcp-prometheus','mcp-kubeshark'].includes(n.id));
+
+// ─────────────────────────────────────────
+// VIEW PRESETS
+// ─────────────────────────────────────────
+const VIEWS = {
+  all:       null, // show everything
+  agent:     ['user-cli','user-slack','openclaw-framework','claude-ai','soul-md','user-md','tools-md','workspace','gait-md','env-file'],
+  mcp:       ['skills-meraki','skills-sot','skills-cloud','skills-proto','skills-util','mcp-meraki','mcp-gait','mcp-netbox','mcp-nautobot','mcp-infrahub','mcp-aws','mcp-gcp','mcp-protocol','mcp-misc'],
+  skills:    ['workspace','skills-device','skills-meraki','skills-sot','skills-cloud','skills-observe','skills-proto','skills-util'],
+  platforms: ['mcp-meraki','mcp-gait','mcp-netbox','mcp-aws','mcp-gcp','mcp-protocol','mcp-misc','platform-cisco','platform-meraki','platform-sot','platform-itsm','platform-cloud','platform-observe','platform-git','platform-comms'],
+};
+
+// ─────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────
+const canvas  = document.getElementById('canvas');
+const svgLayer= document.getElementById('svg-layer');
+let scale = 0.72, panX = 20, panY = 20;
+let dragging = false, dragStartX, dragStartY, panStartX, panStartY;
+let selectedNode = null;
+let hiddenLayers = new Set();
+let currentView  = 'all';
+let searchTerm   = '';
+
+function nodeById(id) { return VISIBLE_NODES.find(n => n.id === id); }
+
+function renderNodes() {
+  // Remove old node divs
+  canvas.querySelectorAll('.node').forEach(el => el.remove());
+
+  VISIBLE_NODES.forEach(n => {
+    if (hiddenLayers.has(n.layer)) return;
+    const div = document.createElement('div');
+    div.className = `node layer-${n.layer}`;
+    div.id = `node-${n.id}`;
+    div.style.left = n.x + 'px';
+    div.style.top  = n.y + 'px';
+    if (n.badge) {
+      const b = document.createElement('div');
+      b.className = 'node-badge';
+      b.textContent = n.badge;
+      div.appendChild(b);
+    }
+    const t = document.createElement('div');
+    t.className = 'node-title';
+    t.textContent = n.title;
+    div.appendChild(t);
+    const s = document.createElement('div');
+    s.className = 'node-sub';
+    s.textContent = n.sub;
+    div.appendChild(s);
+    div.addEventListener('click', () => showInfo(n));
+    canvas.appendChild(div);
+  });
+
+  applySearch(searchTerm);
+  applyViewPreset(currentView);
+}
+
+function renderEdges() {
+  svgLayer.innerHTML = '';
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  svgLayer.appendChild(defs);
+
+  EDGES.forEach((e, i) => {
+    const fromN = nodeById(e.from);
+    const toN   = nodeById(e.to);
+    if (!fromN || !toN) return;
+    if (hiddenLayers.has(fromN.layer) || hiddenLayers.has(toN.layer)) return;
+
+    // Approximate center of each node (width~140, height~52)
+    const x1 = fromN.x + 70, y1 = fromN.y + 26;
+    const x2 = toN.x + 70,   y2 = toN.y + 26;
+
+    // Cubic bezier control points
+    const cx = (x1 + x2) / 2;
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', `M${x1},${y1} C${cx},${y1} ${cx},${y2} ${x2},${y2}`);
+    path.setAttribute('class', 'edge' + (e.flow ? ' flow' : ''));
+    path.setAttribute('stroke', e.color);
+    svgLayer.appendChild(path);
+  });
+
+  // Expand SVG to canvas bounds
+  const maxX = Math.max(...VISIBLE_NODES.map(n=>n.x)) + 200;
+  const maxY = Math.max(...VISIBLE_NODES.map(n=>n.y)) + 100;
+  svgLayer.setAttribute('width', maxX);
+  svgLayer.setAttribute('height', maxY);
+}
+
+function applyTransform() {
+  canvas.style.transform = `translate(${panX}px,${panY}px) scale(${scale})`;
+}
+
+function zoom(factor) {
+  scale = Math.min(2, Math.max(0.2, scale * factor));
+  applyTransform();
+}
+
+function resetView() {
+  scale = 0.72; panX = 20; panY = 20;
+  applyTransform();
+}
+
+// ─────────────────────────────────────────
+// PAN
+// ─────────────────────────────────────────
+const wrap = document.getElementById('canvas-wrap');
+wrap.addEventListener('mousedown', e => {
+  if (e.target.closest('.node')) return;
+  dragging = true;
+  dragStartX = e.clientX; dragStartY = e.clientY;
+  panStartX = panX; panStartY = panY;
+  wrap.classList.add('dragging');
+});
+document.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  panX = panStartX + (e.clientX - dragStartX);
+  panY = panStartY + (e.clientY - dragStartY);
+  applyTransform();
+});
+document.addEventListener('mouseup', () => { dragging = false; wrap.classList.remove('dragging'); });
+wrap.addEventListener('wheel', e => {
+  e.preventDefault();
+  zoom(e.deltaY < 0 ? 1.1 : 0.9);
+}, {passive:false});
+
+// ─────────────────────────────────────────
+// INFO PANEL
+// ─────────────────────────────────────────
+function showInfo(n) {
+  if (selectedNode) document.getElementById(`node-${selectedNode.id}`)?.classList.remove('selected');
+  selectedNode = n;
+  document.getElementById(`node-${n.id}`)?.classList.add('selected');
+
+  const colors = {user:'#388bfd',agent:'#3fb950',skills:'#bc8cff',mcp:'#d29922',platform:'#f85149',infra:'#39c5cf'};
+  const c = colors[n.layer] || '#888';
+  let html = `<h2>${n.title}</h2>`;
+  html += `<span class="tag" style="background:${c}22;color:${c};border:1px solid ${c}44">${n.layer}</span>`;
+  if (n.sub) html += `<span class="tag" style="background:#21262d;color:#8b949e;border:1px solid #30363d">${n.sub}</span>`;
+  html += `<hr>`;
+  html += `<p>${n.info.desc}</p>`;
+  if (n.info.path) {
+    html += `<div class="meta">Path / Config</div>`;
+    html += `<div class="path">${n.info.path}</div>`;
+  }
+  if (n.info.files && n.info.files.length) {
+    html += `<div class="meta">Key Files</div><ul>`;
+    n.info.files.forEach(f => html += `<li class="path">${f}</li>`);
+    html += `</ul>`;
+  }
+  if (n.info.links && n.info.links.length) {
+    const linked = n.info.links.map(id => nodeById(id)).filter(Boolean);
+    if (linked.length) {
+      html += `<div class="meta">Connected To</div><ul>`;
+      linked.forEach(ln => html += `<li>${ln.title} <span style="color:#484f58">(${ln.layer})</span></li>`);
+      html += `</ul>`;
+    }
+  }
+  document.getElementById('info-content').innerHTML = html;
+  document.getElementById('info-panel').classList.add('visible');
+}
+
+function closeInfo() {
+  if (selectedNode) document.getElementById(`node-${selectedNode.id}`)?.classList.remove('selected');
+  selectedNode = null;
+  document.getElementById('info-panel').classList.remove('visible');
+}
+
+// ─────────────────────────────────────────
+// SEARCH
+// ─────────────────────────────────────────
+function doSearch(val) {
+  searchTerm = val.toLowerCase().trim();
+  applySearch(searchTerm);
+}
+
+function applySearch(term) {
+  const count = document.getElementById('match-count');
+  if (!term) {
+    VISIBLE_NODES.forEach(n => {
+      const el = document.getElementById(`node-${n.id}`);
+      if (el) { el.classList.remove('dimmed','highlighted'); }
+    });
+    count.textContent = '';
+    return;
+  }
+  let matches = 0;
+  VISIBLE_NODES.forEach(n => {
+    const el = document.getElementById(`node-${n.id}`);
+    if (!el) return;
+    const hit = n.title.toLowerCase().includes(term) || n.sub.toLowerCase().includes(term) || n.info.desc.toLowerCase().includes(term);
+    if (hit) { el.classList.remove('dimmed'); el.classList.add('highlighted'); matches++; }
+    else      { el.classList.add('dimmed');   el.classList.remove('highlighted'); }
+  });
+  count.textContent = `${matches} match${matches !== 1 ? 'es' : ''}`;
+}
+
+// ─────────────────────────────────────────
+// LAYER TOGGLE
+// ─────────────────────────────────────────
+function toggleLayer(layer, show) {
+  if (show) hiddenLayers.delete(layer);
+  else      hiddenLayers.add(layer);
+  renderNodes();
+  renderEdges();
+}
+
+// ─────────────────────────────────────────
+// VIEW PRESETS
+// ─────────────────────────────────────────
+function setView(name) {
+  currentView = name;
+  document.querySelectorAll('#toolbar .tb-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  applyViewPreset(name);
+}
+
+function applyViewPreset(name) {
+  const ids = VIEWS[name];
+  VISIBLE_NODES.forEach(n => {
+    const el = document.getElementById(`node-${n.id}`);
+    if (!el) return;
+    if (!ids) { el.classList.remove('dimmed','highlighted'); }
+    else if (ids.includes(n.id)) { el.classList.remove('dimmed'); el.classList.add('highlighted'); }
+    else { el.classList.add('dimmed'); el.classList.remove('highlighted'); }
+  });
+}
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+renderNodes();
+renderEdges();
+applyTransform();
+</script>
+</body>
+</html>

@@ -5,8 +5,8 @@ Usage:
     python3 mcp-call.py <server-command> <tool-name> [arguments-json]
 
 Examples:
-    python3 mcp-call.py "python3 -u /path/to/pyats_mcp_server.py" pyats_list_devices
     python3 mcp-call.py "npx -y @drawio/mcp" open_drawio_mermaid '{"content":"graph TD; A-->B"}'
+    python3 mcp-call.py "node /path/to/meraki-mcp/server.js" list_organizations
     python3 mcp-call.py "node /path/to/markmap/dist/index.js" create_markmap '{"content":"# Root"}'
 """
 

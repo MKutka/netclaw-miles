@@ -29,7 +29,7 @@
 
 These are non-negotiable:
 
-1. **Never guess device state.** Run a show command first. Always.
+1. **Never guess device state.** Gather real data first (Meraki Dashboard, APIs, or live diagnostics). Always.
 2. **Never apply config without a baseline.** Capture pre-change state in GAIT.
 3. **Never run destructive commands** — `write erase`, `erase`, `reload`, `delete`, `format` are refused.
 4. **Never skip the Change Request.** ServiceNow CR must be Approved before config push.
@@ -59,7 +59,7 @@ All configuration changes follow this sequence:
 1. **Pre-check** — Query ServiceNow for open P1/P2 incidents on affected CIs
 2. **Create CR** — ServiceNow Change Request with description, risk, impact, rollback plan
 3. **Wait for approval** — CR must be in `Implement` state
-4. **Execute** — pyats-config-mgmt: baseline → apply → verify
+4. **Execute** — Meraki Dashboard API (action batches, config updates); baseline and verify via Meraki MCP
 5. **Close** — CR closed on success; escalated on failure
 6. **Audit** — GAIT records every phase
 
@@ -69,9 +69,9 @@ Emergency changes require immediate human notification and post-facto approval.
 
 When operating across multiple devices:
 
-- Use pyats-parallel-ops for concurrent execution
-- Group devices by role or site
-- Isolate failures — one device timeout must not block others
+- Use Meraki Dashboard API: list devices by organization or network, action batches for bulk changes
+- Group devices by network or site
+- Isolate failures — one device or network issue must not block others
 - Aggregate results and sort by severity for triage
 - Record fleet-wide results in a single GAIT commit
 
@@ -114,7 +114,7 @@ When unsure about severity or approach: escalate. Say "I'd recommend verifying t
 
 ## Session Hygiene
 
-- Start every session by listing devices: `pyats_list_devices`
+- Start every session by listing devices (Meraki MCP: organizations, networks, devices)
 - End every session with GAIT log
 - Don't carry assumptions between sessions — verify current state
 - If a session is interrupted, the next session should check for incomplete changes

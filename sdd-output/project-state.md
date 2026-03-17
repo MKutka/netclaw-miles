@@ -22,7 +22,7 @@ The agent operates as an autonomous network engineer: it reads its own identity 
 | AI Model | Anthropic Claude (opus-4-6 primary, sonnet-4-6 fallback) |
 | Skill Delivery | OpenClaw workspace (~/.openclaw/workspace) |
 | Tool Integration | MCP (Model Context Protocol) — stdio/HTTP |
-| Device Automation | pyATS + Genie structured parsing (Python 3) |
+| Device Automation | Meraki Dashboard API + Meraki MCP (~804 endpoints) |
 | Protocol Participation | Custom protocol-mcp (Python 3 — Scapy, FastMCP) |
 | Config/Secrets | .env file (not in repo) |
 | Audit Trail | GAIT MCP — every session Git-committed |
@@ -39,17 +39,15 @@ OpenClaw Framework (Node.js)
         ↓
 Claude AI (Anthropic API)
         ↓
-77 Skills (workspace/skills/) → ~/.openclaw/workspace
+38 Skills (workspace/skills/) → ~/.openclaw/workspace
         ↓
-32+ MCP Servers (stdio transport)
+25 MCP Servers (stdio transport)
         ↓
 Network Platforms
 ```
 
-### Skill Domains (77 total)
-- Device Automation (9): pyATS show commands, health, routing, security, topology, config mgmt, troubleshoot, dynamic test, parallel ops
-- Linux Host (3): system, network, VMware
-- Firewall (1): ASA
+### Skill Domains (38 total)
+- Meraki (5): network ops, wireless, switching, security appliance, monitoring (~804 API endpoints) — primary device automation
 - Source of Truth (4): NetBox, Nautobot, Infrahub, GAIT audit
 - Catalyst Center (3): inventory, client ops, troubleshoot
 - Identity & Access (2): ISE posture, ISE incident response
@@ -64,8 +62,6 @@ Network Platforms
 - Observability (2): Grafana, Prometheus
 - Kubernetes (1): Kubeshark traffic analysis
 - Protocol Participation (1): Live BGP/OSPF/GRE via TUN device
-- Cisco Security (2): FMC, RADKit
-- Meraki (5): network ops, wireless, switching, security appliance, monitoring (~804 API endpoints)
 - ThousandEyes (2): monitoring, path analysis
 - Cloud AWS (5): network, monitoring, security audit, cost, architecture diagram
 - Cloud GCP (3): compute, monitoring, logging
@@ -73,12 +69,11 @@ Network Platforms
 - Slack (4): alerts, reports, incident workflow, user context
 
 ### MCP Servers
-**In-repo (2):**
-1. `mcp-servers/pyATS_MCP` — 8 tools for pyATS device automation (run show commands, ping, apply config, get logs, Linux ops, dynamic test)
-2. `mcp-servers/protocol-mcp` — 10 tools for live BGP/OSPF/GRE protocol participation via real TUN interfaces
+**In-repo (1):**
+1. `mcp-servers/protocol-mcp` — 10 tools for live BGP/OSPF/GRE protocol participation via real TUN interfaces
 
-**External (32+, installed by install.sh to ~/mcp-servers/):**
-Markmap, GAIT, GitHub, NetBox, Nautobot, Infrahub, ServiceNow, ISE, NVD, Catalyst Center, CML, SD-WAN, Meraki Magic (~804 endpoints), ThousandEyes (community + official), AWS (×6), GCP (×4), RADKit, FMC, Grafana, Prometheus, Kubeshark, Draw.io, UML/Kroki, RFC lookup, NVD CVE, Slack, MS Graph, nmap, gtrace, Packet Buddy
+**External (25, installed by install.sh to mcp-servers/):**
+Markmap, GAIT, GitHub, NetBox, Nautobot, Infrahub, ServiceNow, ISE, NVD, Catalyst Center, CML, SD-WAN, Meraki Magic (~804 endpoints), ThousandEyes (community + official), AWS (×6), GCP (×4), Grafana, Prometheus, Kubeshark, Draw.io, UML/Kroki, RFC lookup, NVD CVE, Slack, MS Graph, nmap, gtrace, Packet Buddy
 
 ---
 
@@ -103,12 +98,12 @@ netclaw-miles/
 ├── examples/               # 7 workflow examples
 ├── lab/                    # FRR testbed for local protocol testing
 ├── mcp-servers/            # 2 custom MCP servers (gitignored)
-│   ├── pyATS_MCP/
+│   ├── (Meraki Magic MCP, etc.)
 │   └── protocol-mcp/
 ├── scripts/
 │   ├── install.sh          # 40-step automated installer
 │   └── setup.sh            # Interactive credentials setup
-├── testbed/                # pyATS testbed YAML config
+├── testbed/                # README only — device inventory in Meraki Dashboard
 ├── workspace/
 │   └── skills/             # 71 skill directories
 └── sdd-output/             # SDD workflow outputs (this file)
@@ -118,9 +113,9 @@ netclaw-miles/
 
 ## What Works
 
-- Full OpenClaw agent framework with 77 skills deployed to `~/.openclaw/workspace`
-- 40-step automated installer covering all 32+ MCP servers
-- pyATS_MCP: 8 tools for device automation, Genie structured parsing
+- Full OpenClaw agent framework with 38 skills deployed to `~/.openclaw/workspace`
+- 27-step automated installer covering 25 MCP servers
+- Meraki Magic MCP: ~804 API endpoints for device and network automation
 - protocol-mcp: BGP/OSPF/GRE live protocol participation via real TUN devices (Linux) and macOS utun (via ctypes)
 - Meraki-focused with 5 skills and ~804 API endpoints
 - GAIT mandatory audit trail — every session Git-committed
@@ -152,7 +147,7 @@ The following platforms were removed in recent commits and may need re-evaluatio
 
 ### Documentation Gaps
 - USER.md and TOOLS.md are templates with placeholder values — must be filled per deployment
-- README step counts reference 77 skills but workspace has 71 skill directories (discrepancy of 6)
+- README and SOUL reference 38 skills (Meraki-focused)
 
 ---
 

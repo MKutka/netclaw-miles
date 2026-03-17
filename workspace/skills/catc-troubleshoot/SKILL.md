@@ -1,6 +1,6 @@
 ---
 name: catc-troubleshoot
-description: "Catalyst Center troubleshooting workflows - device unreachable investigation, client connectivity issues, interface down analysis, site-wide outage triage, wireless roaming problems, integration with pyATS for CLI-level diagnostics"
+description: "Catalyst Center troubleshooting workflows - device unreachable investigation, client connectivity issues, interface down analysis, site-wide outage triage, wireless roaming problems (CLI-level escalation not available in Meraki-focused variant)"
 user-invocable: true
 metadata:
   { "openclaw": { "requires": { "bins": ["python3"], "env": ["CATC_MCP_SCRIPT", "MCP_CALL"] } } }
@@ -8,7 +8,7 @@ metadata:
 
 # Catalyst Center Troubleshooting Workflows
 
-Structured troubleshooting methodology using Cisco Catalyst Center (formerly DNA Center) as the primary diagnostic platform, with escalation to pyATS CLI-level tools when the controller APIs are insufficient. This skill provides decision trees, triage procedures, and escalation paths for the most common network issues surfaced through Catalyst Center.
+Structured troubleshooting methodology using Cisco Catalyst Center (formerly DNA Center) as the primary diagnostic platform. This skill provides decision trees and triage procedures for the most common network issues surfaced through Catalyst Center. In this Meraki-focused variant, CLI-level escalation to on-box show commands is not available; rely on Catalyst Center data and, where applicable, Meraki Dashboard for devices in Meraki networks.
 
 ## Catalyst Center MCP Server
 
@@ -41,16 +41,16 @@ CCC_HOST=$CCC_HOST CCC_USER=$CCC_USER CCC_PWD=$CCC_PWD python3 $MCP_CALL "python
 - Wireless roaming issues or poor signal complaints
 - Interface down investigations
 - Post-change verification when something goes wrong
-- Correlation between Catalyst Center data and live device state via pyATS
+- Correlation between Catalyst Center data and Meraki or other sources where devices are managed there
 
 ## Troubleshooting Principles
 
 1. **Define the problem** -- What exactly is reported? Single user, multiple users, entire site? Wired or wireless? When did it start?
 2. **Scope the impact** -- Use Catalyst Center client counts and device reachability to quantify: how many clients affected? How many devices unreachable?
 3. **Gather data from the controller** -- Catalyst Center provides a controller-level view that covers hundreds of devices simultaneously. Start here.
-4. **Correlate with live device state** -- When Catalyst Center data is stale or insufficient, escalate to pyATS for real-time CLI data.
+4. **Correlate with other sources** -- When Catalyst Center data is stale or insufficient, use Meraki Dashboard (if devices are Meraki) or other available tools; CLI-level escalation is not available in this variant.
 5. **Isolate the fault domain** -- Is it the client, the access layer, the distribution/core, or a WAN/upstream issue?
-6. **Resolve and verify** -- Fix the issue, confirm via both Catalyst Center and pyATS, document.
+6. **Resolve and verify** -- Fix the issue, confirm via Catalyst Center (and Meraki if applicable), document.
 
 ---
 
@@ -81,17 +81,11 @@ Device Unreachable in Catalyst Center
 |   +-- Check device details in CatC
 |   +-- Check last update time
 |   +-- Check collection status and error code
-|   +-- Attempt pyATS connectivity test
+|   +-- If device is Meraki: check Meraki Dashboard status and live diagnostics
 |   |
-|   +-- pyATS connects successfully?
-|   |   |
-|   |   +-- YES: CatC polling issue (SNMP/NETCONF credentials, ACL)
-|   |   +-- NO: Device is truly unreachable
-|   |       |
-|   |       +-- Ping from adjacent device (pyATS)
-|   |       +-- Check upstream interface state
-|   |       +-- Check ARP/MAC table on upstream switch
-|   |       +-- Physical layer: power, cable, SFP
+|   +-- Device truly unreachable?
+|   |   +-- CatC polling issue (SNMP/NETCONF credentials, ACL) vs device down
+|   |   +-- Check upstream device in CatC; physical layer: power, cable, SFP
 ```
 
 ### Step 1: Identify All Unreachable Devices
@@ -130,52 +124,21 @@ CCC_HOST=$CCC_HOST CCC_USER=$CCC_USER CCC_PWD=$CCC_PWD python3 $MCP_CALL "python
 
 **NOTE:** This returns the last-known interface state. If the device became unreachable recently, this data may still reflect the pre-failure state. Look for interfaces that were already showing errors before the device went dark.
 
-### Step 5: Escalate to pyATS for Live Validation
+### Step 5: Further Validation (No CLI in This Variant)
 
-When `$PYATS_MCP_SCRIPT` and `$PYATS_TESTBED_PATH` are available and the device is in the pyATS testbed:
-
-```bash
-# Attempt to connect and get basic state
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"UNREACHABLE-SW-01","command":"show ip interface brief"}'
-```
-
-**If pyATS connects but CatC cannot reach the device:**
-- The device is alive but Catalyst Center's polling is blocked
-- Check SNMP community strings, NETCONF/RESTCONF configuration
-- Check if an ACL on the device is blocking the CatC management IP
-- Verify the management VRF routing to the CatC appliance
-
-**If pyATS also cannot connect:**
-- The device is truly unreachable from the management network
-- Ping from an adjacent device in pyATS:
-
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_ping_from_network_device '{"device_name":"UPSTREAM-SW-01","command":"ping 10.1.10.1"}'
-```
-
-- Check the upstream switch's interface to the unreachable device:
-
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"UPSTREAM-SW-01","command":"show interfaces GigabitEthernet1/0/1"}'
-```
-
-- Check ARP and MAC table on the upstream switch:
-
-```bash
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"UPSTREAM-SW-01","command":"show arp"}'
-```
+In this Meraki-focused variant, direct CLI access to Catalyst Center–managed devices is not available. Use CatC data and, if the device is also in a Meraki network, Meraki Dashboard and meraki-monitoring (live ping, cable test) for additional validation. For root-cause analysis, rely on CatC collection status, last update time, and upstream device state from CatC.
 
 ### Common Root Causes: Device Unreachable
 
-| Root Cause | CatC Indicators | pyATS Indicators | Resolution |
-|------------|-----------------|-------------------|------------|
-| Device powered off | Unreachable, no updates | Connection refused | Check power, PDU, UPS |
-| Management interface down | Unreachable | Cannot SSH | Verify mgmt interface config via console |
-| SNMP credential mismatch | Partial Collection Failure | pyATS connects OK | Fix SNMP community on device or CatC |
-| ACL blocking CatC | Unreachable from CatC | pyATS connects OK | Update ACL to permit CatC management IPs |
-| Routing issue to mgmt subnet | Unreachable | Ping fails from adjacent device | Check routing table, management VRF |
-| Upstream link failure | Multiple devices unreachable | Upstream interface down | Physical layer: cable, SFP, port |
-| Device crash/reload | Recently unreachable | Boot messages in logs | Check `show logging`, `show version` uptime |
+| Root Cause | CatC Indicators | Resolution |
+|------------|-----------------|------------|
+| Device powered off | Unreachable, no updates | Check power, PDU, UPS |
+| Management interface down | Unreachable | Verify mgmt interface config via console |
+| SNMP credential mismatch | Partial Collection Failure | Fix SNMP community on device or CatC |
+| ACL blocking CatC | Unreachable from CatC | Update ACL to permit CatC management IPs |
+| Routing issue to mgmt subnet | Unreachable | Check routing table, management VRF |
+| Upstream link failure | Multiple devices unreachable | Physical layer: cable, SFP, port |
+| Device crash/reload | Recently unreachable | Check CatC last update; console if needed |
 
 ---
 
@@ -266,40 +229,23 @@ CCC_HOST=$CCC_HOST CCC_USER=$CCC_USER CCC_PWD=$CCC_PWD python3 $MCP_CALL "python
 CCC_HOST=$CCC_HOST CCC_USER=$CCC_USER CCC_PWD=$CCC_PWD python3 $MCP_CALL "python3 -u $CATC_MCP_SCRIPT" fetch_interfaces '{"device_id":"<switch-UUID>"}'
 ```
 
-### Step 5: Escalate to pyATS for Switch-Port Level Troubleshooting
+### Step 5: Deeper Client/Port Data (CatC and Meraki Only)
 
-When CatC data is insufficient (e.g., you need to check port security, 802.1X session state, or MAC address table):
-
-```bash
-# Check the specific switchport
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"ACC-SW-01","command":"show interfaces GigabitEthernet1/0/15"}'
-
-# Check authentication sessions (802.1X/MAB)
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"ACC-SW-01","command":"show authentication sessions"}'
-
-# Check MAC address table for the client
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"ACC-SW-01","command":"show mac address-table"}'
-
-# Check DHCP snooping bindings
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"ACC-SW-01","command":"show ip dhcp snooping binding"}'
-
-# Check port-security
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"ACC-SW-01","command":"show port-security"}'
-```
+When CatC data is insufficient, use additional Catalyst Center API calls (client details, interface details). For Meraki-managed switches, use meraki-switch-ops (port statuses, VLANs) and meraki-monitoring (cable test). CLI-level port security or 802.1X session inspection is not available in this variant.
 
 ### Common Root Causes: Client Connectivity
 
-| Root Cause | CatC Indicators | pyATS/CLI Indicators | Resolution |
+| Root Cause | CatC Indicators | Resolution |
 |------------|-----------------|----------------------|------------|
 | DHCP exhaustion | Client has 169.254.x.x IP | `show ip dhcp pool` shows 0 free | Expand DHCP scope or reduce lease time |
-| Port security violation | Client not visible | `err-disabled` state on port | Clear port-security, investigate |
-| 802.1X failure | Client not visible | Authentication failed in ISE | Check credentials, certificate, RADIUS |
-| Wrong VLAN | Client visible but no connectivity | Port in wrong VLAN | Correct VLAN assignment |
-| Duplex mismatch | Poor health score (wired) | Half-duplex on one end | Set both ends to auto or match manually |
-| Wireless: low RSSI | Low health score, low RSSI | N/A (wireless) | Move closer to AP, add AP coverage |
-| Wireless: co-channel | Intermittent drops | N/A (wireless) | Adjust channel plan, reduce AP power |
-| AP overloaded | Multiple clients with issues | N/A (wireless) | Load balance, add AP capacity |
-| Upstream link failure | Multiple clients affected | Interface down on distribution | Physical layer or routing issue |
+| Port security violation | Client not visible | Clear port-security, investigate (console if needed) |
+| 802.1X failure | Client not visible | Check credentials, certificate, RADIUS (ISE) |
+| Wrong VLAN | Client visible but no connectivity | Correct VLAN assignment |
+| Duplex mismatch | Poor health score (wired) | Set both ends to auto or match manually |
+| Wireless: low RSSI | Low health score, low RSSI | Move closer to AP, add AP coverage |
+| Wireless: co-channel | Intermittent drops | Adjust channel plan, reduce AP power |
+| AP overloaded | Multiple clients with issues | Load balance, add AP capacity |
+| Upstream link failure | Multiple clients affected | Physical layer or routing issue |
 
 ---
 
@@ -334,34 +280,19 @@ Filter the interface response for:
 | Management interface | HIGH: Loses management access to the device | Urgent |
 | Loopback | HIGH if used for routing (OSPF RID, BGP update-source) | Urgent |
 
-### Step 4: Escalate to pyATS for Detailed Interface Diagnostics
+### Step 4: Detailed Interface Data (CatC and Meraki)
 
-```bash
-# Detailed interface statistics
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"DIST-SW-01","command":"show interfaces TenGigabitEthernet1/0/1"}'
-
-# Check for recent log messages about the interface
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_show_logging '{"device_name":"DIST-SW-01"}'
-
-# Check SFP/transceiver status
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"DIST-SW-01","command":"show interfaces transceiver"}'
-
-# Check EtherChannel status if applicable
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"DIST-SW-01","command":"show etherchannel summary"}'
-
-# Check spanning-tree for blocked ports
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"DIST-SW-01","command":"show spanning-tree"}'
-```
+Use Catalyst Center interface details (counters, status). For Meraki switches, use meraki-switch-ops (port statuses, errors) and meraki-monitoring (cable test). CLI-level transceiver or EtherChannel diagnostics are not available in this variant.
 
 ### Interface Down Root Causes
 
-| Symptom | CatC Data | CLI Investigation | Likely Cause |
-|---------|-----------|-------------------|-------------|
-| admin UP, oper DOWN | Status mismatch in CatC | No link pulse on interface | Bad cable, SFP, remote end shut |
-| CRC errors incrementing | Error counters in interface data | `show interfaces` CRC count | Faulty cable, bad SFP, duplex mismatch |
-| Err-disabled | Port not visible or shows errors | `show interfaces status err-disabled` | Port-security, BPDU guard, storm-control |
-| Flapping (up/down cycles) | Multiple status changes | `show logging` UPDOWN messages | Loose cable, auto-negotiation failure |
-| STP blocked | Port up but no traffic | `show spanning-tree` BLK state | STP topology issue, loop detected |
+| Symptom | CatC Data | Likely Cause |
+|---------|-----------|---------------|
+| admin UP, oper DOWN | Status mismatch in CatC | Bad cable, SFP, remote end shut |
+| CRC errors incrementing | Error counters in interface data | Faulty cable, bad SFP, duplex mismatch |
+| Err-disabled | Port not visible or shows errors | Port-security, BPDU guard, storm-control |
+| Flapping (up/down cycles) | Multiple status changes | Loose cable, auto-negotiation failure |
+| STP blocked | Port up but no traffic | STP topology issue, loop detected |
 
 ---
 
@@ -440,26 +371,9 @@ CCC_HOST=$CCC_HOST CCC_USER=$CCC_USER CCC_PWD=$CCC_PWD python3 $MCP_CALL "python
 CCC_HOST=$CCC_HOST CCC_USER=$CCC_USER CCC_PWD=$CCC_PWD python3 $MCP_CALL "python3 -u $CATC_MCP_SCRIPT" fetch_interfaces '{"device_id":"<DIST-UUID>"}'
 ```
 
-### Step 4: Escalate to pyATS for the Reachable Upstream
+### Step 4: Upstream Device State (CatC and Meraki)
 
-If the distribution/core device is still reachable:
-
-```bash
-# Check all interfaces on the distribution switch
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"DIST-SW-NYC","command":"show ip interface brief"}'
-
-# Check routing table -- are routes to the affected site present?
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"DIST-SW-NYC","command":"show ip route"}'
-
-# Check OSPF/BGP adjacencies
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_run_show_command '{"device_name":"DIST-SW-NYC","command":"show ip ospf neighbor"}'
-
-# Check for recent events in the logs
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_show_logging '{"device_name":"DIST-SW-NYC"}'
-
-# Ping the unreachable access switches from the distribution
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL "python3 -u $PYATS_MCP_SCRIPT" pyats_ping_from_network_device '{"device_name":"DIST-SW-NYC","command":"ping 10.1.30.1"}'
-```
+Use Catalyst Center to check the distribution/core device's interfaces and reachability. If the upstream device is Meraki-managed, use meraki-network-ops (device status, uplink) and meraki-monitoring (ping from device). CLI-level routing or OSPF checks are not available in this variant.
 
 ### Site Outage Root Causes
 
@@ -571,7 +485,7 @@ Investigation Timeline
 2. [HH:MM] Identified site-localized issue at Global/USA/NYC/Floor3
 3. [HH:MM] Checked distribution switch DIST-SW-NYC -- reachable
 4. [HH:MM] Found TenGig1/0/1 (uplink to Floor3 IDF) down/down
-5. [HH:MM] pyATS logs show %LINK-3-UPDOWN at 14:23 UTC
+5. [HH:MM] Device logs show %LINK-3-UPDOWN at 14:23 UTC (from CatC or console if available)
 6. [HH:MM] SFP transceiver showing rx power below threshold
 
 Root Cause

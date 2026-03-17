@@ -70,9 +70,9 @@ python3 $MCP_CALL "node $MARKMAP_MCP_SCRIPT" markmap_customize '{"markdown_conte
 
 ## Integration with Other Skills
 
-- Use **pyats-health-check** data to generate health overview mind maps
-- Use **pyats-security** audit results to create severity-ranked visualizations
-- Use **pyats-topology** discovery data to map the network hierarchy
+- Use **meraki-monitoring** / **meraki-network-ops** device status data to generate health overview mind maps
+- Use **meraki-security-appliance** or NVD CVE audit results to create severity-ranked visualizations
+- Use **meraki-network-ops** (org/network/device hierarchy) to map the network structure
 - Use **netbox-reconcile** drift data to visualize discrepancies
 - Use alongside **drawio-diagram** — markmap for hierarchical views, Draw.io for topology views
 

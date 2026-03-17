@@ -164,12 +164,11 @@ python3 $MCP_CALL "python3 -u $GAIT_MCP_SCRIPT" gait_record_turn '{"prompt":"Rec
 
 GAIT session tracking is used by every other NetClaw skill for audit compliance:
 
-- **pyats-health-check** -- Record each health check step and overall results
-- **pyats-topology** -- Record discovered neighbors and topology changes
-- **pyats-security** -- Record audit findings by severity
-- **pyats-config-mgmt** -- Record pre-change baseline, change applied, post-change verification
-- **pyats-troubleshoot** -- Record each investigation step and root cause
-- **pyats-routing** -- Record routing table snapshots and protocol state
+- **meraki-monitoring** -- Record device status, live diagnostics, and config change audit results
+- **meraki-network-ops** -- Record org/network/device inventory and change operations
+- **meraki-security-appliance** / **meraki-switch-ops** / **meraki-wireless-ops** -- Record pre-change baseline, change applied, post-change verification
+- **servicenow-change-workflow** -- Record CR creation, approval, execution, verification, closure
+- **te-path-analysis** / **sdwan-ops** -- Record investigation steps and findings
 - **netbox-reconcile** -- Record drift detection and remediation actions
 - **drawio-diagram** -- Record diagram generation with source data reference
 - **markmap-viz** -- Record mind map creation with underlying data

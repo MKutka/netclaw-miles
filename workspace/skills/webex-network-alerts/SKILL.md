@@ -86,7 +86,7 @@ _Captured in GAIT session abc123_
 
 ### Health Check Alert Flow
 
-After running a health check (pyats-health-check skill), post results to the designated space:
+After running device health/diagnostics (meraki-monitoring, meraki-network-ops device status), post results to the designated space:
 
 1. Run the full health check procedure
 2. Determine overall severity (CRITICAL > HIGH > WARNING > HEALTHY)
@@ -129,7 +129,7 @@ _Details in reply thread →_
 
 ### Security Alert Flow
 
-After a security audit (pyats-security skill), post findings:
+After a security audit (meraki-security-appliance or NVD CVE), post findings:
 
 ```
 🛡️ **Security Audit — R1**

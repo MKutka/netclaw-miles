@@ -197,8 +197,8 @@ When investigating network logs stored in Loki:
 
 | Skill | Integration |
 |-------|-------------|
-| **pyats-health-check** | Cross-reference pyATS health data with Grafana metrics and dashboards |
-| **pyats-routing** | Correlate OSPF/BGP state changes with Grafana metric timelines |
+| **meraki-monitoring** | Cross-reference Meraki device status and health with Grafana metrics and dashboards |
+| **meraki-network-ops** | Correlate Meraki uplink/device state changes with Grafana metric timelines |
 | **gait-session-tracking** | Record all Grafana queries and findings in GAIT audit trail |
 | **slack-network-alerts** | Grafana alerts fed through Slack + NetClaw for automated investigation |
 | **servicenow-change-workflow** | Annotate Grafana dashboards during change windows; correlate incidents with CRs |

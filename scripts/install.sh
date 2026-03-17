@@ -38,7 +38,7 @@ clone_or_pull() {
 
 NETCLAW_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MCP_DIR="$NETCLAW_DIR/mcp-servers"
-TOTAL_STEPS=30
+TOTAL_STEPS=27
 
 echo "========================================="
 echo "  NetClaw - CCIE Network Agent"
@@ -147,30 +147,10 @@ log_info "MCP servers directory: $MCP_DIR"
 echo ""
 
 # ═══════════════════════════════════════════
-# Step 5: pyATS MCP (clone + pip install)
+# Step 5: Markmap MCP (clone + npm build)
 # ═══════════════════════════════════════════
 
-log_step "5/$TOTAL_STEPS Installing pyATS MCP Server..."
-echo "  Source: https://github.com/automateyournetwork/pyATS_MCP"
-
-PYATS_MCP_DIR="$MCP_DIR/pyATS_MCP"
-clone_or_pull "$PYATS_MCP_DIR" "https://github.com/automateyournetwork/pyATS_MCP.git"
-
-log_info "Installing Python dependencies..."
-pip3 install -r "$PYATS_MCP_DIR/requirements.txt" 2>/dev/null || \
-    pip3 install "pyats[full]" mcp pydantic python-dotenv
-
-[ -f "$PYATS_MCP_DIR/pyats_mcp_server.py" ] && \
-    log_info "pyATS MCP ready: $PYATS_MCP_DIR/pyats_mcp_server.py" || \
-    log_error "pyats_mcp_server.py not found"
-
-echo ""
-
-# ═══════════════════════════════════════════
-# Step 6: Markmap MCP (clone + npm build)
-# ═══════════════════════════════════════════
-
-log_step "6/$TOTAL_STEPS Installing Markmap MCP Server..."
+log_step "5/$TOTAL_STEPS Installing Markmap MCP Server..."
 echo "  Source: https://github.com/automateyournetwork/markmap_mcp"
 
 MARKMAP_MCP_DIR="$MCP_DIR/markmap_mcp"
@@ -192,7 +172,7 @@ echo ""
 # Step 9: GAIT MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "7/$TOTAL_STEPS Installing GAIT MCP Server..."
+log_step "6/$TOTAL_STEPS Installing GAIT MCP Server..."
 echo "  Source: https://github.com/automateyournetwork/gait_mcp"
 
 GAIT_MCP_DIR="$MCP_DIR/gait_mcp"
@@ -211,7 +191,7 @@ echo ""
 # Step 8: ServiceNow MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "8/$TOTAL_STEPS Installing ServiceNow MCP Server..."
+log_step "7/$TOTAL_STEPS Installing ServiceNow MCP Server..."
 echo "  Source: https://github.com/echelon-ai-labs/servicenow-mcp"
 
 SERVICENOW_MCP_DIR="$MCP_DIR/servicenow-mcp"
@@ -229,7 +209,7 @@ echo ""
 # Step 13: ISE MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "9/$TOTAL_STEPS Installing Cisco ISE MCP Server..."
+log_step "8/$TOTAL_STEPS Installing Cisco ISE MCP Server..."
 echo "  Source: https://github.com/automateyournetwork/ISE_MCP"
 
 ISE_MCP_DIR="$MCP_DIR/ISE_MCP"
@@ -249,7 +229,7 @@ echo ""
 # Step 17: Wikipedia MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "10/$TOTAL_STEPS Installing Wikipedia MCP Server..."
+log_step "9/$TOTAL_STEPS Installing Wikipedia MCP Server..."
 echo "  Source: https://github.com/automateyournetwork/Wikipedia_MCP"
 
 WIKIPEDIA_MCP_DIR="$MCP_DIR/Wikipedia_MCP"
@@ -269,7 +249,7 @@ echo ""
 # Step 18: NVD CVE MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "11/$TOTAL_STEPS Installing NVD CVE MCP Server..."
+log_step "10/$TOTAL_STEPS Installing NVD CVE MCP Server..."
 echo "  Source: https://github.com/marcoeg/mcp-nvd"
 
 NVD_MCP_DIR="$MCP_DIR/mcp-nvd"
@@ -287,7 +267,7 @@ echo ""
 # Step 19: Subnet Calculator MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "12/$TOTAL_STEPS Installing Subnet Calculator MCP Server..."
+log_step "11/$TOTAL_STEPS Installing Subnet Calculator MCP Server..."
 echo "  Source: https://github.com/automateyournetwork/GeminiCLI_SubnetCalculator_Extension"
 
 SUBNET_MCP_DIR="$MCP_DIR/subnet-calculator-mcp"
@@ -307,7 +287,7 @@ echo ""
 # Step 18: Catalyst Center MCP (clone + pip install)
 # ═══════════════════════════════════════════
 
-log_step "13/$TOTAL_STEPS Installing Catalyst Center MCP Server..."
+log_step "12/$TOTAL_STEPS Installing Catalyst Center MCP Server..."
 echo "  Source: https://github.com/richbibby/catalyst-center-mcp"
 
 CATC_MCP_DIR="$MCP_DIR/catalyst-center-mcp"
@@ -327,7 +307,7 @@ echo ""
 # Step 14: npx MCP servers (Draw.io, RFC)
 # ═══════════════════════════════════════════
 
-log_step "14/$TOTAL_STEPS Caching npx-based MCP servers..."
+log_step "13/$TOTAL_STEPS Caching npx-based MCP servers..."
 
 for pkg in "@drawio/mcp" "@mjpitz/mcp-rfc"; do
     log_info "Pre-caching $pkg..."
@@ -340,7 +320,7 @@ echo ""
 # Step 15: Packet Buddy MCP Server (pcap analysis)
 # ═══════════════════════════════════════════
 
-log_step "15/$TOTAL_STEPS Installing Packet Buddy MCP Server..."
+log_step "14/$TOTAL_STEPS Installing Packet Buddy MCP Server..."
 echo "  Pcap analysis via tshark — upload pcaps via Slack or disk"
 
 PACKET_BUDDY_MCP_DIR="$MCP_DIR/packet-buddy-mcp"
@@ -376,7 +356,7 @@ echo ""
 # Step 26: Cisco Modeling Labs (CML) MCP Server
 # ═══════════════════════════════════════════
 
-log_step "16/$TOTAL_STEPS Installing Cisco CML MCP Server..."
+log_step "15/$TOTAL_STEPS Installing Cisco CML MCP Server..."
 echo "  Source: https://github.com/xorrkaz/cml-mcp"
 echo "  Manage CML labs via natural language — create, wire, start, stop, capture"
 
@@ -407,10 +387,6 @@ if [ "$PY_MINOR" -ge 12 ]; then
         log_warn "CML MCP package not importable after install"
     fi
 
-    # Optional: install with pyATS support for CLI execution
-    echo ""
-    log_info "Tip: For pyATS CLI execution on CML nodes, install with:"
-    echo "      pip3 install 'cml-mcp[pyats]'"
 else
     log_warn "Python 3.12+ required for CML MCP (found 3.$PY_MINOR)"
     log_info "CML MCP skipped — upgrade Python or install manually: pip3 install cml-mcp"
@@ -419,39 +395,10 @@ fi
 echo ""
 
 # ═══════════════════════════════════════════
-# Step 24: Cisco FMC MCP Server
+# Step 16: Cisco Meraki Magic MCP Server
 # ═══════════════════════════════════════════
 
-log_step "17/$TOTAL_STEPS Installing Cisco FMC MCP Server..."
-echo "  Source: https://github.com/CiscoDevNet/CiscoFMC-MCP-server-community"
-echo "  Cisco Secure Firewall policy search — access rules, FTD targeting, multi-FMC"
-
-FMC_MCP_DIR="$MCP_DIR/CiscoFMC-MCP-server-community"
-if [ -d "$FMC_MCP_DIR" ]; then
-    log_info "Cisco FMC MCP already cloned, pulling latest..."
-    git -C "$FMC_MCP_DIR" pull --quiet 2>/dev/null || true
-else
-    git clone https://github.com/CiscoDevNet/CiscoFMC-MCP-server-community.git "$FMC_MCP_DIR" 2>/dev/null
-fi
-
-if [ -d "$FMC_MCP_DIR" ]; then
-    if [ -f "$FMC_MCP_DIR/requirements.txt" ]; then
-        pip3 install -r "$FMC_MCP_DIR/requirements.txt" 2>/dev/null || \
-            pip3 install --break-system-packages -r "$FMC_MCP_DIR/requirements.txt" 2>/dev/null || \
-            log_warn "FMC MCP dependencies install failed"
-    fi
-    log_info "Cisco FMC MCP installed (HTTP transport on port 8000)"
-else
-    log_warn "Cisco FMC MCP clone failed"
-fi
-
-echo ""
-
-# ═══════════════════════════════════════════
-# Step 29: Cisco Meraki Magic MCP Server
-# ═══════════════════════════════════════════
-
-log_step "18/$TOTAL_STEPS Installing Cisco Meraki Magic MCP Server..."
+log_step "16/$TOTAL_STEPS Installing Cisco Meraki Magic MCP Server..."
 echo "  Source: https://github.com/CiscoDevNet/meraki-magic-mcp-community"
 echo "  Cisco Meraki Dashboard — ~804 API endpoints: orgs, networks, devices, wireless, switching, security, cameras"
 
@@ -494,7 +441,7 @@ echo ""
 # Step 30: ThousandEyes Community MCP Server
 # ═══════════════════════════════════════════
 
-log_step "19/$TOTAL_STEPS Installing ThousandEyes Community MCP Server..."
+log_step "17/$TOTAL_STEPS Installing ThousandEyes Community MCP Server..."
 echo "  Source: https://github.com/CiscoDevNet/thousandeyes-mcp-community"
 echo "  ThousandEyes monitoring — tests, agents, path visualization, dashboards (9 read-only tools)"
 
@@ -533,7 +480,7 @@ echo ""
 # Step 31: ThousandEyes Official MCP Server (remote HTTP)
 # ═══════════════════════════════════════════
 
-log_step "20/$TOTAL_STEPS Configuring ThousandEyes Official MCP Server..."
+log_step "18/$TOTAL_STEPS Configuring ThousandEyes Official MCP Server..."
 echo "  Source: https://github.com/CiscoDevNet/ThousandEyes-MCP-Server-official"
 echo "  Remote HTTP endpoint hosted by Cisco — ~20 tools: alerts, outages, BGP, instant tests, endpoint agents"
 echo ""
@@ -556,53 +503,10 @@ log_info "ThousandEyes Official MCP ready (remote HTTP — hosted by Cisco)"
 echo ""
 
 # ═══════════════════════════════════════════
-# Step 32: Cisco RADKit MCP Server
+# Step 19: UML MCP Server
 # ═══════════════════════════════════════════
 
-log_step "21/$TOTAL_STEPS Installing Cisco RADKit MCP Server..."
-echo "  Source: https://github.com/CiscoDevNet/radkit-mcp-server-community"
-echo "  Cloud-relayed remote device access — CLI execution, SNMP polling, device inventory (5 tools)"
-
-RADKIT_MCP_DIR="$MCP_DIR/radkit-mcp-server-community"
-if [ -d "$RADKIT_MCP_DIR" ]; then
-    log_info "RADKit MCP already cloned, pulling latest..."
-    git -C "$RADKIT_MCP_DIR" pull --quiet 2>/dev/null || true
-else
-    git clone https://github.com/CiscoDevNet/radkit-mcp-server-community.git "$RADKIT_MCP_DIR" 2>/dev/null
-fi
-
-if [ -d "$RADKIT_MCP_DIR" ]; then
-    PY_MINOR=$(python3 -c 'import sys; print(sys.version_info.minor)' 2>/dev/null || echo "0")
-    if [ "$PY_MINOR" -ge 10 ]; then
-        log_info "Python 3.$PY_MINOR detected (3.10+ required for RADKit MCP)"
-        if [ -f "$RADKIT_MCP_DIR/pyproject.toml" ]; then
-            log_info "Installing RADKit MCP dependencies..."
-            cd "$RADKIT_MCP_DIR" && pip3 install -e . 2>/dev/null || \
-                pip3 install --break-system-packages -e . 2>/dev/null || {
-                log_warn "Full RADKit install failed — installing core deps..."
-                pip3 install fastmcp python-dotenv pydantic-settings 2>/dev/null || \
-                    pip3 install --break-system-packages fastmcp python-dotenv pydantic-settings 2>/dev/null || \
-                    log_warn "RADKit core deps install failed"
-            }
-            cd "$NETCLAW_DIR"
-        fi
-        log_info "RADKit MCP installed (stdio transport via FastMCP)"
-        log_info "  Requires: active RADKit service instance + certificate-based auth"
-    else
-        log_warn "Python 3.10+ required for RADKit MCP (found 3.$PY_MINOR)"
-        log_info "RADKit MCP skipped — upgrade Python or install manually"
-    fi
-else
-    log_warn "RADKit MCP clone failed"
-fi
-
-echo ""
-
-# ═══════════════════════════════════════════
-# Step 22: UML MCP Server
-# ═══════════════════════════════════════════
-
-log_step "22/$TOTAL_STEPS Installing UML MCP Server..."
+log_step "19/$TOTAL_STEPS Installing UML MCP Server..."
 echo "  Source: https://github.com/antoinebou12/uml-mcp"
 echo "  27+ diagram types via Kroki — class, sequence, network, rack, packet, C4, Mermaid, D2, Graphviz (2 tools)"
 
@@ -646,7 +550,7 @@ echo ""
 # Step 30: Cisco SD-WAN MCP Server (vManage)
 # ═══════════════════════════════════════════
 
-log_step "23/$TOTAL_STEPS Installing Cisco SD-WAN MCP Server..."
+log_step "20/$TOTAL_STEPS Installing Cisco SD-WAN MCP Server..."
 echo "  Source: https://github.com/siddhartha2303/cisco-sdwan-mcp"
 echo "  Read-only vManage API — 12 tools for SD-WAN fabric monitoring"
 
@@ -681,7 +585,7 @@ echo ""
 # Step 38: Grafana MCP Server (Observability)
 # ═══════════════════════════════════════════
 
-log_step "24/$TOTAL_STEPS Installing Grafana MCP Server..."
+log_step "21/$TOTAL_STEPS Installing Grafana MCP Server..."
 echo "  Source: https://github.com/grafana/mcp-grafana"
 echo "  Grafana observability — dashboards, Prometheus, Loki, alerting, incidents, OnCall (75+ tools)"
 
@@ -701,7 +605,7 @@ echo ""
 # Step 39: Prometheus MCP Server (Monitoring)
 # ═══════════════════════════════════════════
 
-log_step "25/$TOTAL_STEPS Installing Prometheus MCP Server..."
+log_step "22/$TOTAL_STEPS Installing Prometheus MCP Server..."
 echo "  Source: https://github.com/pab1it0/prometheus-mcp-server"
 echo "  Prometheus monitoring — PromQL queries, metric discovery, target health (6 tools)"
 
@@ -726,7 +630,7 @@ echo ""
 # Step 26: nmap MCP Server (Network Scanning)
 # ═══════════════════════════════════════════
 
-log_step "26/$TOTAL_STEPS Installing nmap MCP Server..."
+log_step "23/$TOTAL_STEPS Installing nmap MCP Server..."
 echo "  Source: https://github.com/sbmilburn/nmap-mcp"
 echo "  Network scanning — host discovery, port scanning, service/OS detection, vuln scanning (14 tools)"
 
@@ -775,7 +679,7 @@ echo ""
 # Step 42: gtrace MCP Server (Path Analysis + IP Enrichment)
 # ═══════════════════════════════════════════
 
-log_step "27/$TOTAL_STEPS Installing gtrace MCP Server..."
+log_step "24/$TOTAL_STEPS Installing gtrace MCP Server..."
 echo "  Source: https://github.com/hervehildenbrand/gtrace"
 echo "  Advanced traceroute (MPLS/ECMP/NAT), MTR, GlobalPing, ASN lookup, geolocation, rDNS (6 tools)"
 
@@ -853,13 +757,10 @@ fi
 echo ""
 
 # ═══════════════════════════════════════════
-# Step 28: Deploy skills and set environment
+# Step 25: Deploy skills and set environment
 # ═══════════════════════════════════════════
 
-log_step "28/$TOTAL_STEPS Deploying skills and configuration..."
-
-PYATS_SCRIPT="$PYATS_MCP_DIR/pyats_mcp_server.py"
-TESTBED_PATH="$NETCLAW_DIR/testbed/testbed.yaml"
+log_step "25/$TOTAL_STEPS Deploying skills and configuration..."
 
 # Bootstrap OpenClaw workspace (create if it doesn't exist)
 OPENCLAW_DIR="$HOME/.openclaw"
@@ -922,11 +823,6 @@ else
     log_warn "Could not update openclaw.json — set systemPrompt manually to $SOUL_PATH"
 fi
 
-# Symlink testbed into workspace so OpenClaw can find it
-mkdir -p "$OPENCLAW_DIR/workspace/testbed"
-ln -sf "$NETCLAW_DIR/testbed/testbed.yaml" "$OPENCLAW_DIR/workspace/testbed/testbed.yaml"
-log_info "Symlinked testbed.yaml into workspace"
-
 # Set ALL environment variables in OpenClaw .env
 OPENCLAW_ENV="$OPENCLAW_DIR/.env"
 [ -f "$OPENCLAW_ENV" ] || touch "$OPENCLAW_ENV"
@@ -941,8 +837,6 @@ _set_env_var() {
     fi
 }
 
-_set_env_var "PYATS_TESTBED_PATH"       "$TESTBED_PATH"
-_set_env_var "PYATS_MCP_SCRIPT"         "$PYATS_SCRIPT"
 _set_env_var "MCP_CALL"                 "$NETCLAW_DIR/scripts/mcp-call.py"
 _set_env_var "MARKMAP_MCP_SCRIPT"       "$MARKMAP_INNER/dist/index.js"
 _set_env_var "GAIT_MCP_SCRIPT"          "$NETCLAW_DIR/scripts/gait-stdio.py"
@@ -991,10 +885,10 @@ fi
 echo ""
 
 # ═══════════════════════════════════════════
-# Step 46: Verify installation
+# Step 26: Verify installation
 # ═══════════════════════════════════════════
 
-log_step "29/$TOTAL_STEPS Verifying installation..."
+log_step "26/$TOTAL_STEPS Verifying installation..."
 
 SERVERS_OK=0
 SERVERS_FAIL=0
@@ -1010,7 +904,6 @@ verify_file() {
     fi
 }
 
-verify_file "pyATS MCP" "$PYATS_MCP_DIR/pyats_mcp_server.py"
 verify_file "Markmap MCP" "$MARKMAP_INNER/dist/index.js"
 verify_file "GAIT MCP" "$GAIT_MCP_DIR/gait_mcp.py"
 verify_file "GAIT stdio wrapper" "$NETCLAW_DIR/scripts/gait-stdio.py"
@@ -1028,15 +921,6 @@ if python3 -c "import cml_mcp" 2>/dev/null; then
     SERVERS_OK=$((SERVERS_OK + 1))
 else
     log_warn "CML MCP: NOT INSTALLED (requires Python 3.12+, pip3 install cml-mcp)"
-fi
-
-# FMC MCP is git-cloned, check for directory
-if [ -d "$FMC_MCP_DIR" ]; then
-    log_info "Cisco FMC MCP: OK"
-    SERVERS_OK=$((SERVERS_OK + 1))
-else
-    log_warn "Cisco FMC MCP: NOT INSTALLED (git clone failed)"
-    SERVERS_FAIL=$((SERVERS_FAIL + 1))
 fi
 
 # Meraki Magic MCP is git-cloned, check for directory and dynamic script
@@ -1072,20 +956,6 @@ if command -v npx &> /dev/null; then
 else
     log_info "ThousandEyes Official MCP: READY (remote HTTP — install Node.js for npx mcp-remote)"
     SERVERS_OK=$((SERVERS_OK + 1))
-fi
-
-# RADKit MCP is git-cloned
-if [ -d "$RADKIT_MCP_DIR" ]; then
-    if [ -f "$RADKIT_MCP_DIR/src/radkit_mcp/server.py" ] || [ -f "$RADKIT_MCP_DIR/mcp_server.py" ]; then
-        log_info "RADKit MCP: OK (5 tools, stdio)"
-        SERVERS_OK=$((SERVERS_OK + 1))
-    else
-        log_info "RADKit MCP: CLONED (server script location may vary)"
-        SERVERS_OK=$((SERVERS_OK + 1))
-    fi
-else
-    log_warn "RADKit MCP: NOT INSTALLED (git clone failed)"
-    SERVERS_FAIL=$((SERVERS_FAIL + 1))
 fi
 
 # UML MCP is git-cloned with pip install
@@ -1162,7 +1032,7 @@ echo ""
 # Step 47: Summary
 # ═══════════════════════════════════════════
 
-log_step "30/$TOTAL_STEPS Installation Summary"
+log_step "27/$TOTAL_STEPS Installation Summary"
 echo ""
 echo "========================================="
 echo "  NetClaw Installation Complete"
@@ -1171,22 +1041,15 @@ echo ""
 
 SKILL_COUNT=$(ls -d "$NETCLAW_DIR/workspace/skills/"*/ 2>/dev/null | wc -l)
 
-echo "MCP Servers Installed (22):"
+echo "MCP Servers Installed (19):"
 echo "  ┌─────────────────────────────────────────────────────────────"
 echo "  │ NETWORK DEVICE AUTOMATION:"
-echo "  │   pyATS              Cisco device CLI, Genie parsers"
-echo "  │   Catalyst Center    DNA Center / CatC API (devices, clients, sites)"
-echo "  │"
-echo "  │ REMOTE DEVICE ACCESS:"
-echo "  │   Cisco RADKit       Cloud-relayed CLI, SNMP, device inventory (5 tools)"
+echo "  │   Cisco Meraki        Dashboard API (~804 endpoints): orgs, networks, wireless, switching, security"
+echo "  │   Catalyst Center     DNA Center / CatC API (devices, clients, sites)"
 echo "  │"
 echo "  │ INFRASTRUCTURE PLATFORMS:"
 echo "  │   Cisco ISE           Identity, posture, TrustSec"
 echo "  │   ServiceNow          ITSM: incidents, changes, CMDB"
-echo "  │"
-echo "  │ FIREWALL SECURITY:"
-echo "  │   Cisco FMC           Secure Firewall policy search, FTD targeting, multi-FMC"
-echo "  │   Cisco Meraki        Dashboard API (~804 endpoints): orgs, networks, wireless, switching, security"
 echo "  │"
 echo "  │ NETWORK INTELLIGENCE:"
 echo "  │   ThousandEyes (community)  Tests, agents, path vis, dashboards (9 tools, stdio)"
@@ -1226,24 +1089,12 @@ echo "  └───────────────────────
 echo ""
 echo "Skills Deployed ($SKILL_COUNT):"
 echo "  ┌─────────────────────────────────────────────────────────────"
-echo "  │ pyATS Skills:"
-echo "  │   pyats-network          Core device automation (8 MCP tools)"
-echo "  │   pyats-health-check     CPU, memory, interfaces, NTP, hardware"
-echo "  │   pyats-routing          OSPF, BGP, EIGRP, IS-IS analysis"
-echo "  │   pyats-security         Security audit + ISE + NVD CVE"
-echo "  │   pyats-topology         Discovery via CDP/LLDP/ARP/routing peers"
-echo "  │   pyats-config-mgmt      Change control + ServiceNow + GAIT"
-echo "  │   pyats-troubleshoot     OSI-layer troubleshooting"
-echo "  │   pyats-dynamic-test     pyATS aetest script generation"
-echo "  │   pyats-parallel-ops     Fleet-wide pCall operations"
-echo "  │"
-echo "  │ pyATS Linux Host Skills:"
-echo "  │   pyats-linux-system     Process monitoring, Docker stats, filesystem, curl"
-echo "  │   pyats-linux-network    Interfaces (ifconfig), routing (ip route), netstat"
-echo "  │   pyats-linux-vmware     VMware ESXi: VM inventory (vim-cmd), snapshots"
-echo "  │"
-echo "  │ pyATS ASA Skills:"
-echo "  │   pyats-asa-firewall     VPN sessions, failover, interfaces, routes, ASP drops, service policies"
+echo "  │ Cisco Meraki Skills:"
+echo "  │   meraki-network-ops       Org inventory, networks, devices, clients, action batches"
+echo "  │   meraki-wireless-ops      SSIDs, RF profiles, channel utilization, signal quality"
+echo "  │   meraki-switch-ops        Ports, VLANs, ACLs, QoS, port cycling"
+echo "  │   meraki-security-appliance MX firewall, VPN, content filtering, traffic shaping"
+echo "  │   meraki-monitoring        Live ping, cable test, LED blink, cameras, config audit"
 echo "  │"
 echo "  │ Catalyst Center Skills:"
 echo "  │   catc-inventory         Device inventory & site management"
@@ -1267,19 +1118,6 @@ echo "  │"
 echo "  │ gtrace Path Analysis & IP Enrichment Skills:"
 echo "  │   gtrace-path-analysis   Traceroute (MPLS/ECMP/NAT), MTR monitoring, GlobalPing (3 tools)"
 echo "  │   gtrace-ip-enrichment   ASN lookup, geolocation, reverse DNS (3 tools)"
-echo "  │"
-echo "  │ Cisco FMC Skills:"
-echo "  │   fmc-firewall-ops        Access policy search, FTD targeting, multi-FMC audit"
-echo "  │"
-echo "  │ Cisco RADKit Skills:"
-echo "  │   radkit-remote-access    Cloud-relayed CLI, SNMP, device inventory, attributes"
-echo "  │"
-echo "  │ Cisco Meraki Skills:"
-echo "  │   meraki-network-ops       Org inventory, networks, devices, clients, action batches"
-echo "  │   meraki-wireless-ops      SSIDs, RF profiles, channel utilization, signal quality"
-echo "  │   meraki-switch-ops        Ports, VLANs, ACLs, QoS, port cycling"
-echo "  │   meraki-security-appliance MX firewall, VPN, content filtering, traffic shaping"
-echo "  │   meraki-monitoring        Live ping, cable test, LED blink, cameras, config audit"
 echo "  │"
 echo "  │ ThousandEyes Skills:"
 echo "  │   te-network-monitoring    Tests, agents, path vis, dashboards, alerts, events, endpoints"
@@ -1343,7 +1181,7 @@ echo "========================================="
 echo "  Next Steps"
 echo "========================================="
 echo ""
-echo "  1. nano testbed/testbed.yaml        # Add your network devices"
+echo "  1. Configure Meraki API key in ~/.openclaw/.env (MERAKI_API_KEY)"
 echo "  2. openclaw gateway                 # Start the gateway"
 echo "  3. openclaw chat --new              # Talk to NetClaw"
 echo ""

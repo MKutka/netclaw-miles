@@ -245,7 +245,7 @@ python3 $MCP_CALL "npx -y @drawio/mcp" open_drawio_mermaid '{"content":"graph LR
 
 ## Integration with Other Skills
 
-- Use **pyats-topology** to discover the network, then generate diagrams from the data
+- Use **meraki-network-ops** (org, networks, devices) or Catalyst Center to discover the network, then generate diagrams from the data
 - Use **netbox-reconcile** to color-code links by reconciliation status (documented/undocumented/missing)
 - Use **markmap-viz** for hierarchical views alongside Draw.io for topology views
 - Use **aci-fabric-audit** data to generate ACI fabric topology diagrams

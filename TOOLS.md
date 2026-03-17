@@ -4,15 +4,7 @@ Skills define *how* tools work. This file is for *your* specifics — the enviro
 
 ## Network Devices
 
-Devices are defined in `testbed/testbed.yaml`. Update that file with your SSH-accessible Cisco devices.
-
-```
-### Example Device Map
-- R1 → 10.1.1.1, Core Router, IOS-XE 17.9
-- R2 → 10.1.1.2, Distribution Router, IOS-XE 17.9
-- SW1 → 10.1.2.1, Access Switch, IOS-XE 17.9
-- SW2 → 10.1.2.2, Access Switch, IOS-XE 17.9
-```
+Devices are defined in Meraki Dashboard (and optionally Catalyst Center). No testbed file is required. Configure `MERAKI_API_KEY` and `MERAKI_ORG_ID` in `~/.openclaw/.env`. Use the Meraki MCP server to list organizations, networks, and devices.
 
 ## Platform Credentials
 
@@ -20,7 +12,7 @@ All credentials are in `~/.openclaw/.env`. Never put credentials in skill files 
 
 ```
 ### Connection Details (reference only — actual values in .env)
-- pyATS Testbed       → PYATS_TESTBED_PATH
+- Cisco Meraki        → MERAKI_API_KEY, MERAKI_ORG_ID
 - NetBox              → NETBOX_URL, NETBOX_TOKEN
 - ServiceNow          → SERVICENOW_INSTANCE_URL, SERVICENOW_USERNAME, SERVICENOW_PASSWORD
 - Cisco APIC          → APIC_URL, APIC_USERNAME, APIC_PASSWORD

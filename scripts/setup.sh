@@ -3,8 +3,7 @@
 # Configures network platform credentials (runs after openclaw onboard)
 #
 # This handles the NetClaw-specific stuff that openclaw onboard doesn't:
-# - Network platform credentials (NetBox, ServiceNow, ACI, ISE, F5, CatC, NVD)
-# - pyATS testbed editing
+# - Network platform credentials (NetBox, ServiceNow, Meraki, CatC, NVD)
 # - Slack channel mapping
 # - USER.md personalization
 #
@@ -110,28 +109,16 @@ echo ""
 echo -e "  ${DIM}All credentials are stored in ~/.openclaw/.env (never committed to git)${NC}"
 
 # ═══════════════════════════════════════════
-# Step 1: Network Devices (pyATS)
+# Step 1: Network Platforms
 # ═══════════════════════════════════════════
 
-section "Step 1: Network Devices"
+section "Step 1: Network Platforms"
 
-echo "  NetClaw uses pyATS to connect to Cisco devices via SSH."
-echo "  Your device inventory goes in testbed/testbed.yaml."
+echo "  Netclaw-Miles is an advanced Meraki assistant. Device inventory is defined in"
+echo "  Meraki Dashboard (and optionally Catalyst Center). No testbed file is required."
 echo ""
 
-if yesno "Open testbed.yaml in your editor now?"; then
-    EDITOR="${EDITOR:-nano}"
-    "$EDITOR" "$NETCLAW_DIR/testbed/testbed.yaml"
-    ok "Testbed edited"
-else
-    skip "Testbed editing (edit testbed/testbed.yaml later)"
-fi
-
-# ═══════════════════════════════════════════
-# Step 2: Network Platforms
-# ═══════════════════════════════════════════
-
-section "Step 2: Network Platforms"
+section "Step 2: Platform Credentials"
 
 echo "  Which platforms do you have? NetClaw will only enable what you select."
 echo "  You can always re-run this to add more later."
@@ -377,28 +364,6 @@ else
 fi
 echo ""
 
-# --- Cisco FMC (Secure Firewall) ---
-if yesno "Do you have a Cisco Secure Firewall Management Center (FMC)?"; then
-    echo ""
-    echo -e "  FMC MCP connects via HTTP to the FMC REST API for firewall policy search."
-    echo -e "  Requires FMC with API access enabled."
-    echo ""
-    prompt FMC_URL "FMC Base URL (https://fmc.example.com)" ""
-    prompt FMC_USER "FMC API Username" ""
-    prompt_secret FMC_PASS "FMC API Password"
-    if yesno "Verify SSL certificate?" "y"; then
-        FMC_VERIFY="true"
-    else
-        FMC_VERIFY="false"
-    fi
-    [ -n "$FMC_URL" ] && set_env "FMC_BASE_URL" "$FMC_URL"
-    [ -n "$FMC_USER" ] && set_env "FMC_USERNAME" "$FMC_USER"
-    [ -n "$FMC_PASS" ] && set_env "FMC_PASSWORD" "$FMC_PASS"
-    set_env "FMC_VERIFY_SSL" "$FMC_VERIFY"
-    ok "Cisco FMC configured"
-else
-    skip "Cisco FMC"
-fi
 # --- Cisco ThousandEyes ---
 if yesno "Do you have a Cisco ThousandEyes account? (network monitoring, path visualization, BGP)"; then
     echo ""
@@ -413,25 +378,6 @@ if yesno "Do you have a Cisco ThousandEyes account? (network monitoring, path vi
     ok "Cisco ThousandEyes configured (both community and official servers)"
 else
     skip "Cisco ThousandEyes"
-fi
-echo ""
-
-# --- Cisco RADKit ---
-if yesno "Do you have a Cisco RADKit service instance? (cloud-relayed remote device access)"; then
-    echo ""
-    echo -e "  RADKit provides cloud-relayed access to on-premises network devices."
-    echo -e "  Your RADKit service must be running and devices onboarded."
-    echo -e "  Auth: certificate-based identity (generated during RADKit onboarding)."
-    echo ""
-    prompt RADKIT_ID "RADKit Identity (your email address)" ""
-    prompt RADKIT_SERIAL "RADKit Service Serial (service instance identifier)" ""
-    [ -n "$RADKIT_ID" ] && set_env "RADKIT_IDENTITY" "$RADKIT_ID"
-    [ -n "$RADKIT_SERIAL" ] && set_env "RADKIT_DEFAULT_SERVICE_SERIAL" "$RADKIT_SERIAL"
-    ok "Cisco RADKit configured"
-    echo -e "  ${DIM}Note: Certificate files are auto-detected from ~/.radkit/identities/${NC}"
-    echo -e "  ${DIM}For container deployment, set RADKIT_CERT_B64, RADKIT_KEY_B64, RADKIT_CA_B64${NC}"
-else
-    skip "Cisco RADKit"
 fi
 echo ""
 
@@ -465,7 +411,7 @@ cat > "$USER_MD" << USEREOF
 - Escalation: alert me for P1/P2, queue P3/P4 for next business day
 
 ## Network
-- Devices are defined in testbed/testbed.yaml and Meraki Dashboard
+- Devices are defined in Meraki Dashboard (and optionally Catalyst Center)
 - See TOOLS.md for site details and channel mappings
 USEREOF
 ok "USER.md written → $USER_MD"
@@ -497,7 +443,7 @@ Skills define *how* tools work. This file is for *your* specifics — the enviro
 
 ## Network Devices
 
-Devices are defined in \`testbed/testbed.yaml\`. Update that file with your SSH-accessible Cisco devices.
+Devices are defined in Meraki Dashboard (and optionally Catalyst Center). No testbed file is required. Configure MERAKI_API_KEY and MERAKI_ORG_ID in \`~/.openclaw/.env\`.
 
 ## Platform Credentials
 
@@ -617,9 +563,7 @@ grep -q "^CML_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco CML" || skip "Cisco
 grep -q "^AWS_ACCESS_KEY_ID=" "$OPENCLAW_ENV" 2>/dev/null && ok "AWS Cloud" || skip "AWS Cloud"
 grep -q "^GCP_PROJECT_ID=" "$OPENCLAW_ENV" 2>/dev/null && ok "Google Cloud" || skip "Google Cloud"
 grep -q "^MERAKI_API_KEY=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco Meraki" || skip "Cisco Meraki"
-grep -q "^FMC_BASE_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco FMC" || skip "Cisco FMC"
 grep -q "^TE_TOKEN=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco ThousandEyes" || skip "Cisco ThousandEyes"
-grep -q "^RADKIT_IDENTITY=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco RADKit" || skip "Cisco RADKit"
 [ -d "$NETCLAW_DIR/mcp-servers/uml-mcp" ] && ok "UML Diagrams (Kroki — no credentials required)" || skip "UML Diagrams"
 grep -q "^VMANAGE_IP=" "$OPENCLAW_ENV" 2>/dev/null && ok "Cisco SD-WAN" || skip "Cisco SD-WAN"
 grep -q "^GRAFANA_URL=" "$OPENCLAW_ENV" 2>/dev/null && ok "Grafana" || skip "Grafana"

@@ -3,110 +3,55 @@
 ## Prompt
 
 ```
-Run a full health check on R1
+Run a health check on my Meraki network (or a specific device)
 ```
 
 ## What NetClaw Does
 
-NetClaw uses the **pyats-health-check** skill to run an 8-step assessment:
+NetClaw uses **meraki-monitoring** and **meraki-network-ops** to assess device and network health:
 
-### Step 1: Device Identity & Uptime
+### Step 1: Device Status
 
-```
-→ pyats_run_show_command: show version
-```
+- List organizations and networks via Meraki MCP.
+- Get device status: online/offline, last seen, uplink status, LAN/WAN addresses.
+- Identify any devices with alerts (offline, uplink down, high latency).
 
-Extracts hostname, model (C8000V), IOS-XE version, uptime, last reload reason, memory, license status. Flags if uptime < 24h (recent reload) or last reload was a crash.
+### Step 2: Utilization & Performance
 
-### Step 2: CPU Utilization
+- Use Meraki Dashboard API or MCP for device performance data where available (e.g. appliance Uplink status, switch port status).
+- For wireless: client counts, RF metrics, connectivity issues.
 
-```
-→ pyats_run_show_command: show processes cpu sorted
-```
+### Step 3: Connectivity
 
-Reads 5-sec / 1-min / 5-min averages. Identifies top consumers (BGP I/O, OSPF Hello, SNMP ENGINE, IP Input). Applies thresholds:
-- < 50% → HEALTHY
-- 50-75% → WARNING
-- 75-90% → HIGH
-- \> 90% → CRITICAL
+- Live ping from device (Meraki MCP) when supported.
+- Uplink health and latency from Dashboard.
 
-### Step 3: Memory Utilization
+### Step 4: Summarize
 
-```
-→ pyats_run_show_command: show processes memory sorted
-```
+NetClaw produces a health summary:
 
-Calculates used vs total percentage. Flags heavy consumers (BGP Router, CEF process, IOSD iomem). Thresholds:
-- < 70% → HEALTHY
-- 70-85% → WARNING
-- 85-95% → HIGH
-- \> 95% → CRITICAL
-
-### Step 4: Interface Status
-
-```
-→ pyats_run_show_command: show ip interface brief
-→ pyats_run_show_command: show interfaces
-```
-
-Reports per-interface: admin/protocol status, IP, speed/duplex, input/output rates, error counters (CRC, drops, overruns, resets). Flags any interface that is up/down, has incrementing CRC errors, or is flapping.
-
-### Step 5: Hardware & Environment
-
-```
-→ pyats_run_show_command: show inventory
-→ pyats_run_show_command: show platform
-```
-
-Module status, serial numbers, transceiver types.
-
-### Step 6: NTP Synchronization
-
-```
-→ pyats_run_show_command: show ntp associations
-→ pyats_run_show_command: show clock
-```
-
-Checks for synchronized peer (`*` in output). Flags if no peer synced, offset > 100ms, or NTP not configured.
-
-### Step 7: System Logs
-
-```
-→ pyats_show_logging
-```
-
-Scans for critical syslog patterns: `%SYS-2-MALLOCFAIL`, `%SYS-3-CPUHOG`, `%LINEPROTO-5-UPDOWN`, `%OSPF-*-ADJCHG`, `%BGP-*-ADJCHANGE`, `Traceback`, `%PLATFORM-*-CRASH`.
-
-### Step 8: Connectivity
-
-```
-→ pyats_ping_from_network_device: ping 8.8.8.8 repeat 5
-```
-
-Measures success rate and RTT. 100% with < 50ms → HEALTHY.
+- Devices online/offline per network.
+- Any reported alerts or events.
+- Recommended actions (e.g. investigate offline device, check uplink).
 
 ## Example Output
 
 ```
-Device: R1 (devnetsandboxiosxec8k.cisco.com)
-Model: C8000V | IOS-XE: 17.9.4a | Uptime: 45d 12h
+Organization: Your Org
+Networks: 3
 
 ┌──────────────────┬──────────┬─────────────────────────┐
-│ Check            │ Status   │ Details                 │
+│ Network          │ Status   │ Details                 │
 ├──────────────────┼──────────┼─────────────────────────┤
-│ CPU (5min avg)   │ HEALTHY  │ 8%                      │
-│ Memory           │ HEALTHY  │ 42% used (1.1G/2.6G)   │
-│ Interfaces       │ HEALTHY  │ 3/3 up/up               │
-│ Hardware         │ HEALTHY  │ All modules OK          │
-│ NTP              │ HEALTHY  │ Synced, offset 4ms      │
-│ Logs             │ HEALTHY  │ No critical events      │
-│ Connectivity     │ HEALTHY  │ 100% to 8.8.8.8, 18ms  │
+│ Main Office      │ HEALTHY  │ 12/12 devices online     │
+│ Branch-A         │ WARNING  │ 1 device offline (SW-2) │
+│ Guest-WiFi       │ HEALTHY  │ 5/5 APs online           │
 └──────────────────┴──────────┴─────────────────────────┘
 
-Overall: HEALTHY — All checks passed
+Alerts: 1 — SW-2 (Branch-A) offline since 14:30 UTC. Check power/uplink.
 ```
 
 ## Skills Used
 
-- **pyats-health-check** (primary)
-- **pyats-network** (underlying MCP tool calls)
+- **meraki-monitoring** (device status, alerts)
+- **meraki-network-ops** (org/network/device hierarchy, live tools where available)

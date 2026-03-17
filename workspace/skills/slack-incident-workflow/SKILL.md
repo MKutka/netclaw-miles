@@ -84,37 +84,28 @@ NetClaw runs diagnostics and posts results in the thread:
 
 ```
 :mag: *Automated Investigation — Step 1/4*
-_Checking upstream device R2 for connectivity to R1..._
+_Checking device status and connectivity..._
 
-PYATS_TESTBED_PATH=$PYATS_TESTBED_PATH python3 $MCP_CALL \
-  "python3 -u $PYATS_MCP_SCRIPT" pyats_ping_from_network_device \
-  '{"device_name":"R2","command":"ping 10.1.1.1 repeat 10"}'
+Use Meraki MCP (meraki-monitoring, meraki-network-ops): device status, live ping from device, uplink status, or cable test as appropriate for the incident.
 ```
 
 Post each step result:
 
 ```
 :mag: *Investigation Results — Step 1/4*
-*Ping from R2 to R1 (10.1.1.1):* 0% success — R1 unreachable from upstream
+*Device status:* Offline / Uplink down (from Meraki Dashboard)
 
 :mag: *Investigation Results — Step 2/4*
-*R2 interface Gi1 (toward R1):* up/up, 0 CRC errors, last input 4 min ago
-→ Physical layer looks OK from R2 side
+*Live ping from upstream device:* 0% success — target unreachable
 
 :mag: *Investigation Results — Step 3/4*
-*R2 OSPF neighbors:* R1 missing from neighbor table (was FULL)
-→ OSPF adjacency lost, DR election may be in progress
+*Uplink / interface:* Down or errors (from Meraki or Catalyst Center)
 
 :mag: *Investigation Results — Step 4/4*
-*R2 logs (last 30 min):*
-```
-14:31:47: %OSPF-5-ADJCHG: Nbr 1.1.1.1 on Gi1 from FULL to DOWN
-14:31:48: %LINEPROTO-5-UPDOWN: Line protocol on Gi1, changed to down
-14:32:01: %LINEPROTO-5-UPDOWN: Line protocol on Gi1, changed to up
-14:32:15: %OSPF-5-ADJCHG: Nbr 1.1.1.1 on Gi1 from DOWN to INIT
-```
+*Device/event logs (from Meraki events, Catalyst Center, or console if available):*
+Uplink down/up events, port flapping, or alert timeline.
 
-*Analysis:* R2 saw Gi1 flap at 14:31. Line protocol came back up but OSPF hasn't re-converged. Likely physical issue on R1 side causing interface bounce.
+*Analysis:* Correlate event timestamps with Meraki Dashboard or CatC data to identify cause (e.g. uplink flap, power, or upstream failure).
 ```
 
 ### Phase 4: Status Updates
